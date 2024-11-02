@@ -1,2 +1,4 @@
-# soft-engg-project-sep-2024-se-sep-28
-For IITM Software Engineering Project
+# Software engineering project september 2024 Team 28 
+- "cd" to the directory
+- Pip install the dependencies from requirement.txt by "pip install -r requirements.txt"
+
