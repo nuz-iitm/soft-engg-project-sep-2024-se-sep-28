@@ -32,7 +32,7 @@ export default {
             <button class="btn btn-primary mt-2">Register</button>
           </form>
           <p>Already have an account? <router-link to="/login">Login</router-link></p>
-        </div> 
+        </div>
       </div>
     </div>
   `,

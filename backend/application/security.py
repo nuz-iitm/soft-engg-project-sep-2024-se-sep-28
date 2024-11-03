@@ -1,3 +1,4 @@
-from flask_security import SQLAlchemyUserDatastore
-from .models import db, User
-datastore = SQLAlchemyUserDatastore(db, User)
+from flask_security import SQLAlchemySessionUserDatastore
+from .data.models import db, User, Role
+
+user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
