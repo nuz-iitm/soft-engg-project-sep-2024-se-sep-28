@@ -13,7 +13,6 @@ class DevelopmentConfig(Config):
     SQLITE_DB_DIR = os.path.join(basedir, "db_directory")
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(SQLITE_DB_DIR, "seproject.sqlite3")
     SECRET_KEY = 'superdupersecretkey'
-    SECURITY_REGISTERABLE = True
     SECURITY_PASSWORD_SALT = 'supersaltysalt'
     SECURITY_PASSWORD_HASH = "bcrypt"
     SQLALCHEMY_TRACK_MODIFICATIONS = False

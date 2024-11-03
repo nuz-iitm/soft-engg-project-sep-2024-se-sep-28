@@ -20,6 +20,9 @@ export default {
             <label for="user-password" class="form-label">Password</label>
             <input type="password" class="form-control" id="user-password" v-model="cred.password" required>
 
+            <label for="confirm-password" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="user-password" v-model="cred.password_confirm" required>
+
             <label class="form-label mt-3">Role</label>
             <div>
               <input type="radio" id="student" value="student" v-model="cred.role">
@@ -41,6 +44,7 @@ export default {
       cred: {
         email: '',
         password: '',
+        password_confirm: '',
         role: '' // Added role field
       },
       errors: []
@@ -55,6 +59,9 @@ export default {
       }
       if (!this.cred.password) {
         this.errors.push("Password required.");
+      }
+      if (this.cred.password != this.cred.password_confirm){
+        this.errors.push("Confirm password wrong")
       }
       if (!this.cred.role) {
         this.errors.push("Please select a role.");
