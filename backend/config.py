@@ -1,7 +1,7 @@
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 size = len(basedir)
-maindir = basedir[:size-11]
+maindir = basedir[:size-8]
 
 
 class Config(object):

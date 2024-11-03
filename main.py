@@ -19,6 +19,7 @@ def create_app():
     app.config.from_object(DevelopmentConfig)
     CORS(app)
     db.init_app(app)
+    app.app_context().push()
     #flask-security
     security = Security(app, user_datastore)
     api = Api(app)
@@ -29,6 +30,11 @@ def create_app():
 
 
 app, api = create_app()
+
+
+from backend.application.controller.api import Register
+
+api.add_resource(Register, "/api/register")
 
 if __name__ == '__main__':
     app.run(debug=True)
