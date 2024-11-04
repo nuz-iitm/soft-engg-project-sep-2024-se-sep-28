@@ -19,6 +19,21 @@ export default {
 
               <label for="user-email" style="font-size: 0.9rem; width: 100%; text-align: left; margin-top: 10px;">Email Address</label>
               <input type="email" id="user-email" v-model="userDetails.email" placeholder="name@example.com" required style="width: 100%; padding: 0.6rem; margin-bottom: 10px; border-radius: 5px; border: none;" />
+  <div>
+    <p><router-link to="/"><i style="font-size:2.5rem" class="bi bi-arrow-left-short"></i></router-link></p>
+    <h1 style="text-align:center">Registration</h1>
+      <div class='d-flex justify-content-center' style="margin-top: 10vh">
+        <div class="mb-3 p-5 bg-light">
+          <form @submit.prevent='checkForm'>
+            <p v-if="errors.length">
+              <b>Please correct the following error(s):</b>
+              <ul>
+                <li v-for="error in errors" :key="error">{{ error }}</li>
+              </ul>
+            </p>
+            
+            <label for="user-email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="user-email" placeholder="name@example.com" v-model="cred.email" required>
 
               <label for="user-password" style="font-size: 0.9rem; width: 100%; text-align: left; margin-top: 10px;">Password</label>
               <input type="password" id="user-password" v-model="userDetails.password" placeholder="Create a password" required style="width: 100%; padding: 0.6rem; margin-bottom: 10px; border-radius: 5px; border: none;" />

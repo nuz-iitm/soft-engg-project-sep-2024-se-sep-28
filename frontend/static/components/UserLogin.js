@@ -49,19 +49,21 @@ export default {
         },
         body: JSON.stringify(this.userCredentials)
       })
-        .then(response => response.json().then(data => ({ status: response.status, body: data })))
-        .then(({ status, body }) => {
-          if (status === 200) {
-            this.loginMessage = body.message;
-            console.log("Login successful:", body);
-          } else {
-            this.loginMessage = body.message;
-          }
-        })
-        .catch(error => {
-          console.error("There was an error with the login request!", error);
-          this.loginMessage = "An error occurred. Please try again later.";
-        });
+      .then(this.$router.push('admin_front'))
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Invalid credentials');
+        }
+        return response.json();
+      })
+      .then(data => {
+        alert(data.message);  // Display success message
+        localStorage.setItem('auth-token', data.token);  // Save token
+      })
+      .catch(error => {
+        console.error("There was an error!", error);
+        this.errors.push("Login failed: " + error.message);
+      });
     }
   }
 };
