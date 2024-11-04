@@ -6,6 +6,7 @@ export default {
         <router-link to="/admin_edit_inst" class="btn btn-secondary mb-2 w-100 text-center">Edit Instructors and TA'S</router-link>
         <router-link to="/admin_griev" class="btn btn-secondary mb-2 w-100 text-center">Technical Grievances</router-link>
         <router-link to="/admin_setting" class="btn btn-secondary mb-2 w-100 text-center">Settings</router-link>
+        <router-link to="/" class="btn btn-danger mt-5 w-100 text-center" >Log out</router-link>
       </div>
     `,
     name: 'side_bar_admin',
