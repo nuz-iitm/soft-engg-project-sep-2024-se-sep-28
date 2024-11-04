@@ -62,37 +62,61 @@ export default {
 
   data() {
     return {
-      userDetails: {
-        name: '',
+      cred: {
         email: '',
         password: '',
-        role: ''
+        password_confirm: '',
+        role: '' // Added role field
       },
-      registrationMessage: '' // Feedback message for registration status
+      errors: []
     };
   },
-
   methods: {
-    submitForm() {
-      fetch('http://127.0.0.1:5000/register', {
+    checkForm() {
+      this.errors = [];
+      
+      if (!this.cred.email) {
+        this.errors.push("Email required.");
+      }
+      if (!this.cred.password) {
+        this.errors.push("Password required.");
+      }
+      if (this.cred.password != this.cred.password_confirm){
+        this.errors.push("Confirm password wrong")
+      }
+      if (!this.cred.role) {
+        this.errors.push("Please select a role.");
+      }
+
+      if (this.errors.length === 0) {
+        this.register();
+      }
+    },
+    register() {
+      fetch('http://127.0.0.1:5000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(this.userDetails)
+        body: JSON.stringify(this.cred)
       })
-        .then(response => response.json().then(data => ({ status: response.status, body: data })))
-        .then(({ status, body }) => {
-          if (status === 201) {
-            this.registrationMessage = "Registration successful! You can now log in.";
-          } else {
-            this.registrationMessage = body.message || "Registration failed. Please try again.";
-          }
-        })
-        .catch(error => {
-          console.error("There was an error with the registration request!", error);
-          this.registrationMessage = "An error occurred. Please try again later.";
-        });
+      .then(response => {
+        if (response.status === 409) {
+          throw new Error('User already exists');
+        }
+        if (!response.ok) {
+          throw new Error('Registration failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        alert(data.message);  // Show success message
+        this.$router.push('/login');  // Redirect to login page
+      })
+      .catch(error => {
+        console.error("There was an error!", error);
+        this.errors.push(error.message);
+      });
     }
   }
 };
