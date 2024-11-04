@@ -59,7 +59,7 @@ export default {
         },
         body: JSON.stringify(this.cred)
       })
-      .then(this.$router.push('admin_dash'))
+      .then(this.$router.push('admin_front'))
       .then(response => {
         if (!response.ok) {
           throw new Error('Invalid credentials');

@@ -25,6 +25,9 @@ export default {
                   <progress :value="uploadProgress" max="100"></progress>
                 </div>
               </div>
+              <div>
+                <h2 class="card text-center mt-5">STUDENT LIST</h2>
+              </div>
             </div>
           </div>
         </div>
