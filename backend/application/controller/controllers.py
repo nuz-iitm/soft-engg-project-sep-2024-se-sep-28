@@ -12,6 +12,11 @@ users = {
     "test@example.com": generate_password_hash("password")
 }
 
+ADMIN_CREDENTIALS = {
+    "email": "admin@example.com",
+    "password": "admin123"
+}
+
 @app.get('/')
 def home():
     return render_template('index.html')
@@ -48,3 +53,20 @@ def user_register():
     hashed_password = generate_password_hash(password)
     users[email] = hashed_password  # Storing the hashed password
     return jsonify({"message": "User registered successfully"}), 201
+
+@app.route('/admin-login', methods=['POST'])
+def admin_login():
+    data = request.get_json()
+
+    # Check if data was received and contains email and password
+    if not data or 'email' not in data or 'password' not in data:
+        return jsonify({"message": "Invalid request data"}), 400
+
+    email = data['email']
+    password = data['password']
+
+    # Validate credentials
+    if email == ADMIN_CREDENTIALS["email"] and password == ADMIN_CREDENTIALS["password"]:
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"message": "Invalid credentials"}), 401

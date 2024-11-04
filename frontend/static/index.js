@@ -14,7 +14,7 @@ import router from './router.js'
 new Vue({
   el: '#app',
 
-  template :`<router-view class="m-5"/>`,
+  template :`<router-view/>`,
   router,
 
 

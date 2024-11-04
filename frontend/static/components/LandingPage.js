@@ -12,6 +12,7 @@ export default {
             <div class="button-container">
               <router-link to="/login" class="btn btn-primary btn-lg mr-2">Login</router-link>
               <router-link to="/register" class="btn btn-outline-secondary btn-lg">Sign Up</router-link>
+              <router-link to="/admin-login" class="btn btn-outline-secondary btn-lg">Admin Login</router-link>
             </div>
           </div>
         </main>
