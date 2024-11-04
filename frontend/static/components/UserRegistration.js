@@ -1,7 +1,6 @@
 export default {
   template: `
-  
-    <div>
+  <div>
     <p><router-link to="/"><i style="font-size:2.5rem" class="bi bi-arrow-left-short"></i></router-link></p>
     <h1 style="text-align:center">Registration</h1>
       <div class='d-flex justify-content-center' style="margin-top: 10vh">
