@@ -17,6 +17,7 @@ ADMIN_CREDENTIALS = {
     "password": "admin123"
 }
 
+# This starts the frontend DO NOT DELETE
 @app.get('/')
 def home():
     return render_template('index.html')

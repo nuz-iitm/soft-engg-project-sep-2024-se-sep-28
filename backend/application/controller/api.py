@@ -12,8 +12,11 @@ import uuid
 
 bcrypt = Bcrypt(app)
 
+
+# api for registration
 class Register(Resource):
 
+    # for creating password hash with bcrypt
     def generate_password_hash(self, password):
         return bcrypt.generate_password_hash(password).decode('utf-8')
     
@@ -34,7 +37,6 @@ class Register(Resource):
             return jsonify({"message": "User already exists"}, 400)
 
         # Create new user
-        
         hashed_password = self.generate_password_hash(password)
         print(type(role_id), hashed_password)
         user = User(email=email, password=hashed_password, fs_uniquifier=None)

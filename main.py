@@ -8,8 +8,10 @@ from backend.application.data.database import db
 from backend.application.security import user_datastore
 import os
 
-
+# template directory for frontend DO NOT DELETE
 template_dir = os.path.abspath('frontend/templates')
+
+# statch directory for frontend DO NOT DELETE
 stactic_dir = os.path.abspath('frontend/static')
 
 
@@ -31,9 +33,10 @@ def create_app():
 
 app, api = create_app()
 
-
+# api imports
 from backend.application.controller.api import Register
 
+# user registration endpoint
 api.add_resource(Register, "/api/register")
 
 if __name__ == '__main__':
