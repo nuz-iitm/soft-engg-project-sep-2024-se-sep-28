@@ -48,6 +48,7 @@ export default {
           },
           body: JSON.stringify(this.adminCredentials)
         })
+          .then(this.$router.push('admin_front'))    // by pass to admin front page
           .then(response => response.json().then(data => ({ status: response.status, body: data })))
           .then(({ status, body }) => {
             if (status === 200) {
