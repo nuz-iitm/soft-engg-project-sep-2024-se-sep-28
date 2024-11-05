@@ -8,7 +8,7 @@ export default {
           <router-link to="/admin_edit_inst" class="btn btn-secondary mb-2 w-100 text-center">
             Edit Instructors and TA's
           </router-link>
-          <router-link to="" class="btn btn-secondary mb-2 w-100 text-center">
+          <router-link to="/admin_griev" class="btn btn-secondary mb-2 w-100 text-center">
             Technical Grievances
           </router-link>
           <router-link to="" class="btn btn-secondary mb-2 w-100 text-center">
