@@ -49,7 +49,7 @@ export default {
         },
         body: JSON.stringify(this.userCredentials)
       })
-      .then(this.$router.push('admin_front'))    // by pass to admin front page
+      .then(this.$router.push('instructor_front'))    // by pass to admin front page
       .then(response => {
         if (!response.ok) {
           throw new Error('Invalid credentials');
