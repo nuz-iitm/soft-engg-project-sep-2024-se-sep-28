@@ -38,7 +38,7 @@ export default {
               <div class="col-md-12 mb-4">
                 <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
                   <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">STUDENT LIST</h2>
-                  <table class="table mt-3">
+                  <table class="table mt-3 text-white">
                     <thead>
                       <tr>
                         <th>Name</th>
@@ -73,7 +73,7 @@ export default {
                 uploadProgress: 0,
                 students: [
                   { id: 1, name: "John Doe", email: "john@example.com", project: "Project A" },
-                  { id: 2, name: "Jane Smith", email: "jane@example.com", project: "Project B" },
+                  { id: 2, name: "Jane Smith", email: "jane@example.com", project: "Project B"},
                   // dummy students
                 ],
             }
