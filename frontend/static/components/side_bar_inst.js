@@ -25,7 +25,7 @@ export default {
         Discuss
       </router-link>
       
-      <router-link to="" class="btn mb-2 w-100 text-center" 
+      <router-link to="/instructor_alerts" class="btn mb-2 w-100 text-center" 
                    style="background:none; border:2px black solid; font-size: 1.1rem; padding: 10px; font-weight: 500;">
         Alerts
       </router-link>
