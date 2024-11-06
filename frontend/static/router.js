@@ -10,6 +10,7 @@ import instructor_front from './components/instructor_front.js';
 import instructor_project from './components/instructor_project.js';
 import instructor_teams from './components/instructor_teams.js';
 import instructor_discuss from './components/instructor_discuss.js';
+import instructor_faq from './components/instructor_faq.js';
 
 const routes = [
   { path: '/', name: 'LandingPage', component: LandingPage },
@@ -23,6 +24,7 @@ const routes = [
   { path: '/instructor_project', name:'instructor_project', component:instructor_project},
   { path: '/instructor_teams', name:'instructor_teams', component:instructor_teams},
   { path: '/instructor_discuss', name:'instructor_discuss', component:instructor_discuss},
+  { path: '/instructor_faq', name:'instructor_faq', component:instructor_faq},
   // Other routes can be added here, e.g., UserRegistration
 ];
 
