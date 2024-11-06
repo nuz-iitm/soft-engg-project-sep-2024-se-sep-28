@@ -1,52 +1,76 @@
-import side_bar_stdd from "./side_bar_stdd.js"
+import side_bar_stdd from "./side_bar_stdd.js";
+
 export default {
-    template: `
-        <div class="container-fluid" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; min-height: 100vh;">
-            <div class="row" style="display: flex;">
-                <!-- Sidebar -->
-                <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.2); min-height: 100vh; padding: 20px;">
-                    <side_bar_stdd></side_bar_stdd>
-                </div>
-
-                <!-- Main Content -->
-                <div class="col-md-9 text-center" style="padding: 40px;">
-                    <!-- FAQ Section -->
-                    <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-                        <h2>FAQ</h2>
-                        <p><a href="/faq" class="btn btn-primary btn-sm">Go to FAQ</a></p>
-                    </div>
-
-                    <!-- Scrollable List of Previously Asked Questions -->
-                    <div class="card text-center mt-4" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-                        <h3>Previously Asked Questions</h3>
-                        <div style="max-height: 400px; overflow-y: auto;">
-                            <ul>
-                                <li><strong>Question 1:</strong> Answer 1</li>
-                                <li><strong>Question 2:</strong> Answer 2</li>
-                                <li><strong>Question 3:</strong> Answer 3</li>
-                                <li><strong>Question 4:</strong> Answer 4</li>
-                                <li><strong>Question 5:</strong> Answer 5</li>
-                                <!-- Add more questions here -->
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Link to Ask a New Question -->
-                    <p class="mt-3"><a href="/ask-a-question" class="btn btn-primary btn-sm">Ask a New Question</a></p>
-                </div>
-            </div>
+  template: `
+    <div class="container-fluid" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; min-height: 100vh;">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.2); min-height: 100vh; padding: 20px;">
+          <side_bar_stdd></side_bar_stdd>
         </div>
-        `,
 
-    data() {
-            return {
+        <!-- Main Content -->
+        <div class="col-md-9" style="padding: 40px;">
+          <!-- FAQ Section -->
+          <div class="card text-center mb-5" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <h2 style="font-size: 1.8rem; font-weight: bold;">FAQ</h2>
+            <p>Find answers to commonly asked questions or ask a new one.</p>
+            <a href="/faq" class="btn btn-primary btn-sm">Go to FAQ</a>
+          </div>
 
-            }
-        },
-    components:{
-        side_bar_stdd
+          <!-- Search and Previously Asked Questions -->
+          <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+            <h3 style="font-size: 1.5rem; font-weight: bold;">Previously Asked Questions</h3>
+            
+            <!-- Search Bar for Questions -->
+            <div class="my-3">
+              <input type="text" v-model="searchQuery" placeholder="Search questions..." class="form-control" style="max-width: 400px; margin: 0 auto; border-radius: 5px; padding: 0.6rem;" />
+            </div>
+
+            <!-- Scrollable List of Questions -->
+            <div style="max-height: 400px; overflow-y: auto;">
+              <ul style="list-style: none; padding: 0; color: #e0e0e0;">
+                <li v-for="(question, index) in filteredQuestions" :key="index" style="margin-bottom: 0.8rem;">
+                  <strong>{{ question.question }}</strong>: {{ question.answer }}
+                </li>
+                <li v-if="filteredQuestions.length === 0" style="color: #ffdddd; margin-top: 1rem;">
+                  No matching questions found.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Link to Ask a New Question -->
+          <div class="text-center mt-4">
+            <a href="/ask-a-question" class="btn btn-primary btn-sm">Ask a New Question</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  
+  data() {
+    return {
+      searchQuery: '',
+      questions: [
+        { question: 'Question 1', answer: 'Answer 1' },
+        { question: 'Question 2', answer: 'Answer 2' },
+        { question: 'Question 3', answer: 'Answer 3' },
+        { question: 'Question 4', answer: 'Answer 4' },
+        { question: 'Question 5', answer: 'Answer 5' },
+      ],
+    };
+  },
+  
+  computed: {
+    filteredQuestions() {
+      return this.questions.filter(q => 
+        q.question.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
     },
-    methods: {
+  },
 
-        },
-}
+  components: {
+    side_bar_stdd,
+  },
+};
