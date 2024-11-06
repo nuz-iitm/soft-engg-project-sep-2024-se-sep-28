@@ -1,10 +1,14 @@
 export default {
   template: `
-    <div style="height: 100vh; background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
-      <p><router-link to="/" style="color: #fff; text-decoration: underline;position:absolute; font-size:2.5rem; margin-left:1rem;"><i class="bi bi-arrow-left-circle"></i></router-link></p>
-      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div style="height: 100vh; background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; overflow: scroll;">
+      <p>
+        <router-link to="/" style="color: #fff; text-decoration: underline; position: absolute; font-size: 2.5rem; margin-left: 1rem;">
+          <i class="bi bi-arrow-left-circle"></i>
+        </router-link>
+      </p>
+      <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%;">
         <header style="text-align: center; margin-bottom: 2rem;">
-          <i class="bi bi-person-circle" style="font-size:4rem; color: white;"></i>
+          <i class="bi bi-person-circle" style="font-size: 4rem; color: white;"></i>
           <h1 style="font-size: 2.5rem; font-weight: bold; margin-top: 0.5rem;">User Registration</h1>
           <p style="font-size: 1.25rem; color: #e0e0e0; margin-bottom: 2rem;">Create a new account and access your projects</p>
         </header>
@@ -46,6 +50,8 @@ export default {
               </p>
 
               <p style="margin-top: 1rem;">Already have an account? <router-link to="/login" style="color: #fff; text-decoration: underline;">Login</router-link></p>
+              <p style="margin-top: 1rem;"><router-link to="/admin-login" style="color: #fff; text-decoration: underline;">Administrator Login</router-link></p>
+
             </form>
           </div>
         </main>
