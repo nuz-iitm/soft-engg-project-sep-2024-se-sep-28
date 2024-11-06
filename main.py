@@ -12,12 +12,12 @@ import os
 template_dir = os.path.abspath('frontend/templates')
 
 # statch directory for frontend DO NOT DELETE
-stactic_dir = os.path.abspath('frontend/static')
+static_dir = os.path.abspath('frontend/static')
 
 
 
 def create_app():
-    app = Flask(__name__, template_folder=template_dir, static_folder=stactic_dir)
+    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     app.config.from_object(DevelopmentConfig)
     CORS(app)
     db.init_app(app)

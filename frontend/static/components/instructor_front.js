@@ -1,59 +1,71 @@
-import side_bar_inst from "./side_bar_inst.js"
+import side_bar_inst from "./side_bar_inst.js";
+
 export default {
-    template: `
-        <div class="container-fluid">
-            <div class="row">
-            <div class="col-md-3" style="max-width: 300px; overflow-x: hidden;">
-                <side_bar_inst></side_bar_inst>
-            </div>
-            <div class="col-md-9">
-                <div class="row">
-                <div class="col-md-6 mb-4">
-                    <h2 class="card text-center mt-5">Dashboard</h2>
-                    <!-- Add your dashboard section content here -->
-                </div>
-                <div class="col-md-6 mb-4">
-                    <h2 class="card text-center mt-5">Visualizations</h2>
-                    <!-- Add your visualization section content here -->
-                </div>
-                </div>
-
-                <div class="row">
-                <div class="col-md-12 mb-4">
-                    <h2 class="card text-center mt-5">Top Teams</h2>
-                    <!  top three teams based on certain criteria -->
-                    <!-- You can filter and sort the team data based on your requirements -->
-                    <div class="row">
-                    <div class="col-md-4 mb-4" v-for="(team, index) in topTeams" :key="index">
-                        <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ team.name }}</h5>
-                            <p class="card-text">Commits: {{ team.commits }}</p>
-                            <!-- Add more information about the team in the card -->
-                        </div>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
+  template: `
+    <div class="container-fluid" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; min-height: 100vh;">
+      <div class="row" style="display: flex;">
+        <!-- Sidebar -->
+        <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.2); min-height: 100vh; padding: 20px;">
+          <side_bar_inst></side_bar_inst>
         </div>
-        `,
 
-    data() {
-            return {
-                topTeams: [
-                    { id: 1, name: "Team A", commits: 100 },
-                    { id: 2, name: "Team B", commits: 80 },
-                    { id: 3, name: "Team C", commits: 60 }
-                  ]
-            }
-        },
-    components:{
-        side_bar_inst
-    },
-    methods: {
+        <!-- Main Content -->
+        <div class="col-md-9" style="padding: 40px;">
+          <div class="row">
+            <!-- Dashboard Card -->
+            <div class="col-md-6 mb-4">
+              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Dashboard</h2>
+                <p>Manage all your project tracking in one place.</p>
+              </div>
+            </div>
 
-        },
-}
+            <!-- Visualization Card -->
+            <div class="col-md-6 mb-4">
+              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Visualizations</h2>
+                <p>View insights on student and project performance.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Teams Section -->
+          <div class="row">
+            <div class="col-md-12 mb-4">
+              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Top Teams</h2>
+                <p>Explore the top performing teams based on commits and progress.</p>
+
+                <div class="row" style="justify-content: center; padding: 20px;">
+                  <!-- Team Cards -->
+                  <div class="col-md-4 mb-4" v-for="(team, index) in topTeams" :key="index">
+                    <div class="card" style="background-color: rgba(0, 0, 0, 0.2); color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                      <div class="card-body">
+                        <h5 class="card-title" style="font-size: 1.2rem; font-weight: bold;">{{ team.name }}</h5>
+                        <p class="card-text">Commits: {{ team.commits }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+
+  data() {
+    return {
+      topTeams: [
+        { id: 1, name: "Team A", commits: 100 },
+        { id: 2, name: "Team B", commits: 80 },
+        { id: 3, name: "Team C", commits: 60 }
+      ]
+    };
+  },
+  
+  components: {
+    side_bar_inst
+  }
+};
