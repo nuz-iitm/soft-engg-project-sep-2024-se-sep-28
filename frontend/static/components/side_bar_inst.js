@@ -30,12 +30,35 @@ export default {
         Alerts
       </router-link>
       
-      <router-link to="/" class="btn mt-4 w-100 text-center" 
+      <button  @click="logout" class="btn mt-4 w-100 text-center" 
                    style=" background:none; border:2px red solid; font-size: 1.1rem; padding: 10px; font-weight: 500;">
         Log out
-      </router-link>
+      </button>
     </div>
   `,
   name: 'side_bar_inst',
-  methods: {}
+  methods: {
+    logout() {
+      const authToken = localStorage.getItem('auth-token');
+      localStorage.removeItem('auth-token');
+
+      fetch('http://127.0.0.1:5000/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('logout failed!');
+        }
+        return response.json();
+      })
+      .then(data =>{
+        alert('Logged out successfully');
+        this.$router.push("/");  // Redirect to the landing page
+      })
+    }
+  }
 };

@@ -36,12 +36,14 @@ def create_app():
         import backend.application.controller.controllers
 
         # api imports
-        from backend.application.controller.api import Register, Login
+        from backend.application.controller.api import Register, Login, Logout
 
         # user registration endpoint
         api.add_resource(Register, "/api/register")
         # user login endpoint
         api.add_resource(Login, "/api/login")
+        # user logout endpoint
+        api.add_resource(Logout, "/api/logout")
         
     return app, api
 

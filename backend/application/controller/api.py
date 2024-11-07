@@ -50,15 +50,15 @@ class Login(Resource):
 
         return jsonify({"message": "Invalid email or password"}, 401)
     
-# # API for logout
-# class Logout(Resource):
+# api for logout
+class Logout(Resource):
     
-#     @jwt_required()
-#     def post(self):
+    @jwt_required()
+    def post(self):
 
-#         flask_login.logout_user()
+        flask_login.logout_user()
 
-#         return jsonify({"message": "Logout successful"}, 200)
+        return jsonify({"message": "Logout successful"}, 200)
 
 
 # api for registration

@@ -42,15 +42,6 @@ export default {
 
   methods: {
     submitForm() {
-          // const { email, password } = this.userCredentials  // Dummy code for demonstration purpose
-
-          // if (this.email === "instructor@iitm.com") {  
-          //   this.$router.push("instructor_front");  
-          // } else if (this.email === "student@iitm.com") { 
-          //   this.$router.push("student_front");
-          // } else {
-          //   this.$router.push("instructor_front");  
-          // }
       fetch('http://127.0.0.1:5000/api/login', {
         method: 'POST',
         headers: {
