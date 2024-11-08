@@ -14,6 +14,7 @@ import instructor_faq from './components/instructor_faq.js';
 import instructor_alerts from './components/instructor_alerts.js';
 import student_front from './components/student_front.js'
 import student_discuss from './components/student_discuss.js';
+import student_submission from './components/student_submission.js'
 
 const routes = [
   { path: '/', name: 'LandingPage', component: LandingPage },
@@ -31,6 +32,7 @@ const routes = [
   { path: '/instructor_alerts', name:'instructor_alerts', component:instructor_alerts},
   { path: '/student_front', name:'student_front', component:student_front},
   { path: '/student_discuss', name:'student_discuss', component:student_discuss},
+  { path: '/student_submission', name:'student_submission', component:student_submission},
   // Other routes can be added here, e.g., UserRegistration
 ];
 
