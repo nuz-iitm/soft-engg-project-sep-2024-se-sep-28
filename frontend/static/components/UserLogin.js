@@ -44,36 +44,35 @@ export default {
 
   methods: {
     submitForm() {
-      const { email, password } = this.userCredentials  // Dummy code for demonstration purpose
+      fetch('http://127.0.0.1:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.userCredentials)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Invalid credentials');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data[0].message);
+        console.log(data[0].role_id)
+        alert(data[0].message);  // Display success message
+        localStorage.setItem('auth-token', data[0].access_token);  // Save token
 
-      if (this.email === "instructor@iitm.com") {  
-        this.$router.push("instructor_front");  
-      } else if (this.email === "student@iitm.com") { 
-        this.$router.push("student_front");
-      } else {
-        this.$router.push("instructor_front");  
-      }
-      // fetch('http://127.0.0.1:5000/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify(this.userCredentials)
-      // })
-      // .then(response => {
-      //   if (!response.ok) {
-      //     throw new Error('Invalid credentials');
-      //   }
-      //   return response.json();
-      // })
-      // .then(data => {
-      //   alert(data.message);  // Display success message
-      //   localStorage.setItem('auth-token', data.token);  // Save token
-      // })
-      // .catch(error => {
-      //   console.error("There was an error!", error);
-      //   this.errors.push("Login failed: " + error.message);
-      // });
+        if(data[0].role_id === 2){       // check role
+          this.$router.push("/instructor_front");
+        }else if(data[0].role_id === 3){
+          this.$router.push("/student_front");
+        }
+      })
+      .catch(error => {
+        console.error("There was an error!", error);
+        this.errors.push("Login failed: " + error.message);
+      });
     }
   }
 };
