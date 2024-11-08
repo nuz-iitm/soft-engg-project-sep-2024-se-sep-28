@@ -2,10 +2,10 @@ import side_bar_inst from "./side_bar_inst.js";
 
 export default {
   template: `
-    <div class="container-fluid" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; min-height: 100vh;">
+    <div class="container-fluid" style="background: linear-gradient(135deg, #F0E5D8 0%, #D3E9D7 100%); color: #2F4F4F; min-height: 100vh;">
       <div class="row" style="display: flex;">
         <!-- Sidebar -->
-        <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.2); min-height: 100vh; padding: 20px;">
+        <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.1); min-height: 100vh; padding: 20px;">
           <side_bar_inst></side_bar_inst>
         </div>
 
@@ -14,7 +14,7 @@ export default {
           <div class="row">
             <!-- Dashboard Card -->
             <div class="col-md-6 mb-4">
-              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
                 <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Dashboard</h2>
                 <p>Manage all your project tracking in one place.</p>
               </div>
@@ -22,7 +22,7 @@ export default {
 
             <!-- Visualization Card -->
             <div class="col-md-6 mb-4">
-              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
                 <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Visualizations</h2>
                 <p>View insights on student and project performance.</p>
               </div>
@@ -32,14 +32,14 @@ export default {
           <!-- Top Teams Section -->
           <div class="row">
             <div class="col-md-12 mb-4">
-              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+              <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
                 <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Top Teams</h2>
                 <p>Explore the top performing teams based on commits and progress.</p>
 
                 <div class="row" style="justify-content: center; padding: 20px;">
                   <!-- Team Cards -->
                   <div class="col-md-4 mb-4" v-for="(team, index) in topTeams" :key="index">
-                    <div class="card" style="background-color: rgba(0, 0, 0, 0.2); color: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                    <div class="card" style="background-color: rgba(47, 79, 79, 0.1); color: #2F4F4F; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
                       <div class="card-body">
                         <h5 class="card-title" style="font-size: 1.2rem; font-weight: bold;">{{ team.name }}</h5>
                         <p class="card-text">Commits: {{ team.commits }}</p>

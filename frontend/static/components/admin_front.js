@@ -1,7 +1,8 @@
 import side_bar_admin from "./side_bar_admin.js";
+
 export default {
   template: `
-    <div class="container-fluid" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; min-height: 100vh;">
+    <div class="container-fluid" style="background: linear-gradient(135deg, #F0E5D8 0%, #D3E9D7 100%); color: #2F4F4F; min-height: 100vh;">
       <div class="row" style="display: flex;">
         <!-- Sidebar -->
         <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.2); min-height: 100vh; padding: 20px;">
@@ -14,19 +15,19 @@ export default {
             <!-- BULK EDIT OPTION -->
             <div class="col-md-12 mb-4">
               <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">BULK EDIT OPTION</h2>
+                <h2 style="font-size: 2rem; font-weight: bold; color: #2F4F4F;">BULK EDIT OPTION</h2>
                 <div class="row">
                   <div class="col-md-6 mb-4 d-flex flex-column align-items-center" style="text-align: center;">
                     <form @submit.prevent="uploadCSV" enctype="multipart/form-data">
-                      <input type="file" name="csvFile" accept=".csv" style="margin: 10px;">
-                      <button class="btn btn-primary mt-2 mb-2 me-2">Add Students</button>
-                      <button class="btn btn-primary mt-2 mb-2 me-2">Remove Students</button>
+                      <input type="file" name="csvFile" accept=".csv" style="margin: 10px; background-color: #F0E5D8; color: #2F4F4F;">
+                      <button class="btn" style="background-color: #A4C3B2; color: #2F4F4F; margin-top: 10px;">Add Students</button>
+                      <button class="btn" style="border: 2px solid #FF6347; color: #ff6347; margin-top: 10px;">Remove Students</button>
                     </form>
                   </div>
                   <div class="col-md-6 mb-4 d-flex flex-column align-items-center" style="text-align: center;">
                     <div v-if="uploadingCSV">
                       <p>Uploading CSV file...</p>
-                      <progress :value="uploadProgress" max="100"></progress>
+                      <progress :value="uploadProgress" max="100" style="background-color: #F0E5D8;"></progress>
                     </div>
                   </div>
                 </div>
@@ -36,10 +37,10 @@ export default {
             <!-- STUDENT LIST -->
             <div class="col-md-12 mb-4">
               <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">STUDENT LIST</h2>
-                <table class="table mt-3 text-white">
+                <h2 style="font-size: 2rem; font-weight: bold; color: #2F4F4F;">STUDENT LIST</h2>
+                <table class="table mt-3 text-white" style="color:#2F4F4F;">
                   <thead>
-                    <tr>
+                    <tr style="color:#2f4f4f;">
                       <th>Name</th>
                       <th>Email</th>
                       <th>Project</th>
@@ -47,7 +48,7 @@ export default {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(student, index) in students" :key="index">
+                    <tr style="color:#2F4F4F;" v-for="(student, index) in students" :key="index">
                       <td>{{ student.name }}</td>
                       <td>{{ student.email }}</td>
                       <td>{{ student.project }}</td>
@@ -88,11 +89,9 @@ export default {
       // Remove logic for removing students
     },
     editStudent(student) {
-      // Add logic to handle editing a student
       console.log("Edit student:", student);
     },
     deleteStudent(student) {
-      // Add logic to handle deleting a student
       const index = this.students.indexOf(student);
       if (index !== -1) {
         this.students.splice(index, 1);

@@ -2,24 +2,24 @@ import side_bar_stdd from "./side_bar_stdd.js";
 
 export default {
   template: `
-    <div class="container-fluid" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white; min-height: 100vh;">
+    <div class="container-fluid" style="background: linear-gradient(135deg, #F0E5D8 0%, #D3E9D7 100%); color: #2F4F4F; min-height: 100vh;">
       <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.2); min-height: 100vh; padding: 20px;">
+        <div class="col-md-3" style="max-width: 300px; overflow-x: hidden; background-color: rgba(0, 0, 0, 0.1); min-height: 100vh; padding: 20px;">
           <side_bar_stdd></side_bar_stdd>
         </div>
 
         <!-- Main Content -->
         <div class="col-md-9" style="padding: 40px;">
           <!-- FAQ Section -->
-          <div class="card text-center mb-5" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+          <div class="card text-center mb-5" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
             <h2 style="font-size: 1.8rem; font-weight: bold;">FAQ</h2>
             <p>Find answers to commonly asked questions or ask a new one.</p>
-            <a href="/faq" class="btn btn-primary btn-sm">Go to FAQ</a>
+            <a href="/faq" class="btn" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Go to FAQ</a>
           </div>
 
           <!-- Search and Previously Asked Questions -->
-          <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+          <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
             <h3 style="font-size: 1.5rem; font-weight: bold;">Previously Asked Questions</h3>
             
             <!-- Search Bar for Questions -->
@@ -29,7 +29,7 @@ export default {
 
             <!-- Scrollable List of Questions -->
             <div style="max-height: 400px; overflow-y: auto;">
-              <ul style="list-style: none; padding: 0; color: #e0e0e0;">
+              <ul style="list-style: none; padding: 0; color: #2F4F4F;">
                 <li v-for="(question, index) in filteredQuestions" :key="index" style="margin-bottom: 0.8rem;">
                   <strong>{{ question.question }}</strong>: {{ question.answer }}
                 </li>
@@ -42,7 +42,7 @@ export default {
 
           <!-- Link to Ask a New Question -->
           <div class="text-center mt-4">
-            <a href="/ask-a-question" class="btn btn-primary btn-sm">Ask a New Question</a>
+            <a href="/ask-a-question" class="btn" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Ask a New Question</a>
           </div>
         </div>
       </div>

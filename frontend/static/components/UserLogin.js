@@ -1,29 +1,31 @@
 export default {
   template: `
-    <div style="height: 100vh; background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
-      <router-link to="/" style="color: #fff; text-decoration: underline;position:absolute; font-size:2.5rem; margin-left:1rem;"><i class="bi bi-arrow-left-circle"></i></router-link>
+    <div style="height: 100vh; background: linear-gradient(135deg, #F0E5D8 0%, #D3E9D7 100%); color: #2F4F4F;">
+      <router-link to="/" style="color: #2F4F4F; text-decoration: underline; position:absolute; font-size:2.5rem; margin-left:1rem;">
+        <i class="bi bi-arrow-left-circle"></i>
+      </router-link>
       <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <header style="text-align: center; margin-bottom: 2rem;">
-          <i class="bi bi-person-circle" style="font-size:4rem; color: white;"></i>
+          <i class="bi bi-person-circle" style="font-size:4rem; color: #2F4F4F;"></i>
           <h1 style="font-size: 2.5rem; font-weight: bold; margin-top: 0.5rem;">User Login</h1>
-          <p style="font-size: 1.25rem; color: #e0e0e0; margin-bottom: 2rem;">Access your projects and track your progress</p>
+          <p style="font-size: 1.25rem; color: #A4C3B2; margin-bottom: 2rem;">Access your projects and track your progress</p>
         </header>
 
-        <main style="max-width: 400px; width: 100%; padding: 20px; background-color: rgba(255, 255, 255, 0.1); border-radius: 10px; text-align: center;">
+        <main style="max-width: 400px; width: 100%; padding: 20px; background-color: rgba(255, 255, 255, 0.7); border-radius: 10px; text-align: center;">
           <div>
-            <h2 style="font-size: 1.8rem; margin-bottom: 1rem;">Welcome Back!</h2>
-            <p style="margin-bottom: 1rem;">Please log in to access your dashboard.</p>
+            <h2 style="font-size: 1.8rem; margin-bottom: 1rem; color: #2F4F4F;">Welcome Back!</h2>
+            <p style="margin-bottom: 1rem; color: #2F4F4F;">Please log in to access your dashboard.</p>
             <form @submit.prevent="submitForm" style="display: flex; flex-direction: column; align-items: center;">
-              <label for="user-email" style="font-size: 0.9rem; width: 100%; text-align: left; margin-top: 10px;">Email Address</label>
+              <label for="user-email" style="font-size: 0.9rem; width: 100%; text-align: left; margin-top: 10px; color: #2F4F4F;">Email Address</label>
               <input type="email" id="user-email" v-model="userCredentials.email" placeholder="name@example.com" required style="width: 100%; padding: 0.6rem; margin-bottom: 10px; border-radius: 5px; border: none;" />
 
-              <label for="user-password" style="font-size: 0.9rem; width: 100%; text-align: left; margin-top: 10px;">Password</label>
+              <label for="user-password" style="font-size: 0.9rem; width: 100%; text-align: left; margin-top: 10px; color: #2F4F4F;">Password</label>
               <input type="password" id="user-password" v-model="userCredentials.password" placeholder="Enter password" required style="width: 100%; padding: 0.6rem; margin-bottom: 10px; border-radius: 5px; border: none;" />
 
-              <button type="submit" style="background-color: #4a90e2; border: none; color: white; padding: 10px 20px; font-size: 1rem; border-radius: 8px; transition: all 0.3s ease; margin-top: 1rem;">Login</button>
+              <button type="submit" style="background-color: #A4C3B2; border: none; color: #2F4F4F; padding: 10px 20px; font-size: 1rem; border-radius: 8px; transition: all 0.3s ease; margin-top: 1rem;">Login</button>
             </form>
-            <p v-if="loginMessage" style="margin-top: 1rem;">{{ loginMessage }}</p>
-            <p style="margin-top: 1rem;">Don't have an account? <router-link to="/register" style="color: #fff; text-decoration: underline;">Sign Up</router-link></p>
+            <p v-if="loginMessage" style="margin-top: 1rem; color: #2F4F4F;">{{ loginMessage }}</p>
+            <p style="margin-top: 1rem; color: #2F4F4F;">Don't have an account? <router-link to="/register" style="color: #2F4F4F; text-decoration: underline;">Sign Up</router-link></p>
           </div>
         </main>
       </div>
@@ -42,15 +44,15 @@ export default {
 
   methods: {
     submitForm() {
-          const { email, password } = this.userCredentials  // Dummy code for demonstration purpose
+      const { email, password } = this.userCredentials  // Dummy code for demonstration purpose
 
-          if (this.email === "instructor@iitm.com") {  
-            this.$router.push("instructor_front");  
-          } else if (this.email === "student@iitm.com") { 
-            this.$router.push("student_front");
-          } else {
-            this.$router.push("instructor_front");  
-          }
+      if (this.email === "instructor@iitm.com") {  
+        this.$router.push("instructor_front");  
+      } else if (this.email === "student@iitm.com") { 
+        this.$router.push("student_front");
+      } else {
+        this.$router.push("instructor_front");  
+      }
       // fetch('http://127.0.0.1:5000/login', {
       //   method: 'POST',
       //   headers: {
