@@ -1,5 +1,6 @@
 # Software engineering project september 2024 Team 28 
-- "cd" to the directory
+-  clone repository with "git clone repositry_url"
+-  "cd" to the directory
 - Pip install the dependencies from requirement.txt by "pip install -r requirements.txt"
 - run by "python main.py"
 - For admin login use test email and password in "test_users_role_passwords.txt" file
