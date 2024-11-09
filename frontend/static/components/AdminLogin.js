@@ -41,27 +41,37 @@ export default {
   
   methods: {
     submitForm() {
-      fetch('http://127.0.0.1:5000/admin-login', {
+      fetch('http://127.0.0.1:5000/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(this.adminCredentials)
       })
-        .then(this.$router.push('admin_front'))    // by pass to admin front page
-        .then(response => response.json().then(data => ({ status: response.status, body: data })))
-        .then(({ status, body }) => {
-          if (status === 200) {
-            this.loginMessage = body.message;
-            console.log("Login successful:", body);
-          } else {
-            this.loginMessage = body.message;
-          }
-        })
-        .catch(error => {
-          console.error("There was an error with the login request!", error);
-          this.loginMessage = "An error occurred. Please try again later.";
-        });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Invalid credentials');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data[0].message);
+        console.log(data[0].role_id)
+        // alert(data[0].message);  // Display success message
+        localStorage.setItem('auth-token', data[0].access_token);  // Save token
+
+        if(data[0].role_id === 1){       // check role
+          this.$router.push("/admin_front");
+        }
+        else{
+          alert("Wrong email, adminn login only");
+          this.$router.push("/");
+        } 
+      })
+      .catch(error => {
+        console.error("There was an error!", error);
+        this.errors.push("Login failed: " + error.message);
+      });
     }
   }
 };

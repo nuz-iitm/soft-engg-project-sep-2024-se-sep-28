@@ -1,21 +1,28 @@
 import router from './router.js'
 
 
-// router.beforeEach((to,from,next)=>{
-//   if (to.name !== 'UserLogin' && !localStorage.getItem('auth-token') ? true : false) next({name:'UserLogin'})
-//   else next()
-// })
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('auth-token') !== null;
+  
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!isAuthenticated) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      });
+    } else {
+      next();
+    }
+  } else {
+    next(); // If no requiresAuth meta, just continue
+  }
+});
 
-// router.beforeEach((to,from,next)=>{
-//   if(to.name !== 'AdminLogin' && !localStorage.getItem('auth-token') ? true : false) next({name:'AdminLogin'})
-//   else next()
-// })
 
 new Vue({
   el: '#app',
 
   template :`<router-view/>`,
   router,
-
 
 })
