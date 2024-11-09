@@ -16,7 +16,6 @@ template_dir = os.path.abspath('frontend/templates')
 # statch directory for frontend DO NOT DELETE
 static_dir = os.path.abspath('frontend/static')
 
-print(f"User datastore: {user_datastore}")
 
 def create_app():
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
