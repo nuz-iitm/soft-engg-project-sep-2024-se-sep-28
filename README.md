@@ -1,5 +1,5 @@
 # Software engineering project september 2024 Team 28 
--  clone repository with "git clone repositry_url"
+-  clone repository with "git clone repository_url"
 -  "cd" to the directory
 - Pip install the dependencies from requirement.txt by "pip install -r requirements.txt"
 - run by "python main.py"
