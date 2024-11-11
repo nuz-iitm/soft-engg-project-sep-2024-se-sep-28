@@ -39,12 +39,12 @@ export default {
             'Authorization': `Bearer ${authToken}`
           },
         })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('logout failed!');
-          }
-          return response.json();
-        })
+        // .then(response => {
+        //   if (!response.ok) {
+        //     throw new Error('logout failed!');
+        //   }
+        //   return response.json();
+        // })
         .then(data =>{
           alert('Logged out successfully');
           this.$router.push("/");  // Redirect to the landing page

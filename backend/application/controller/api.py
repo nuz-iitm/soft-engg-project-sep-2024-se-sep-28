@@ -130,30 +130,18 @@ class FAQResource(Resource):
         project_id = instructor.project_id
         return project_id
 
-    # def get(self, faq_id=None):
-    #     """
-    #     Retrieve all FAQ entries or a specific FAQ by ID.
-    #     """
-    #     if faq_id:
-    #         faq = FAQ.query.get(faq_id)
-    #         if not faq:
-    #             return {"message": "FAQ not found"}, 404
-    #         return {
-    #             "id": faq.fid,
-    #             "question": faq.question,
-    #             "answer": faq.answer,
-    #             "project_id": faq.project_id
-    #         }, 200
-    #     else:
-    #         faqs = FAQ.query.all()
-    #         return [
-    #             {
-    #                 "id": faq.fid,
-    #                 "question": faq.question,
-    #                 "answer": faq.answer,
-    #                 "project_id": faq.project_id
-    #             } for faq in faqs
-    #         ], 200
+    @jwt_required()
+    def get(self):
+
+        """
+        Retrieve all FAQ entries 
+        """
+        project_id = self.get_project_id()
+        faqs = Faq.query.filter_by(project_id=project_id).all()
+
+        
+        faq_list = [{"id": faq.f_id, "question": faq.question, "answer": faq.answer} for faq in faqs]
+        return jsonify(faq_list)
 
     @jwt_required()
     def post(self):

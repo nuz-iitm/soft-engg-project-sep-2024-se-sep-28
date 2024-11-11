@@ -49,6 +49,19 @@ export default {
       newFaq: { question: "", answer: "" }
     };
   },
+  mounted() {
+    const authToken = localStorage.getItem('auth-token');
+    fetch('http://127.0.0.1:5000/api/faq', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+    })
+      .then(response => response.json())
+      .then(data => this.faqs=data)
+
+    },
 
   methods: {
     addFaq() {
