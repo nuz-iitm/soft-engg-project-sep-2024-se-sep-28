@@ -1,11 +1,10 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, Role, RolesUsers
+from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
 import flask_login
-from flask_security import auth_required
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
@@ -68,6 +67,22 @@ class Logout(Resource):
 # api for registration
 class Register(Resource):
 
+    # Check if user is registered
+    def check_registration(self, email, role_name):
+        
+        if role_name == 'student':
+            student = Students.query.filter_by(email=email).first()
+            if student:
+                return True
+            else:
+                return False
+        else:
+            instructor = Instructors.query.filter_by(email=email).first()
+            if instructor:
+                return True
+            else:
+                return False
+
     # for creating password hash with bcrypt
     def generate_password_hash(self, password):
         return bcrypt.generate_password_hash(password).decode('utf-8')
@@ -82,23 +97,110 @@ class Register(Resource):
         if not email or not password:
             return jsonify({"message": "Email and password are required"}, 400)
 
-        # Check if user already exists
-        user = User.query.filter_by(email=email).first()
 
-        role_id = Role.query.with_entities(Role.id).filter_by(name=role_name).scalar()
-        if user:
-            return jsonify({"message": "User already exists"}, 400)
+        
+        if self.check_registration(email, role_name):
+            # Check if user already exists
+            user = User.query.filter_by(email=email).first()
+            if user:
+                return jsonify({"message": "User already exists"}, 400)
 
-        # Create new user
-        hashed_password = self.generate_password_hash(password)
+            # Create new user
+            hashed_password = self.generate_password_hash(password)
+            try:
+                user = user_datastore.create_user(email=email, password=hashed_password)
+                db.session.commit()
+
+                user_datastore.add_role_to_user(user, role_name)
+                db.session.commit()
+
+                return jsonify({"message": "User registered successfully"}, 201)
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"message": "Error registering user", "error": str(e)}, 500)
+        else:
+            return jsonify({"message": "User not part of the course"}, 500)
+
+class FAQResource(Resource):
+
+    def get_project_id(self):
+        user_id = get_jwt_identity()['user_id']
+        user = User.query.get(user_id)
+        instructor = Instructors.query.filter_by(email=user.email).first()
+        project_id = instructor.project_id
+        return project_id
+
+    # def get(self, faq_id=None):
+    #     """
+    #     Retrieve all FAQ entries or a specific FAQ by ID.
+    #     """
+    #     if faq_id:
+    #         faq = FAQ.query.get(faq_id)
+    #         if not faq:
+    #             return {"message": "FAQ not found"}, 404
+    #         return {
+    #             "id": faq.fid,
+    #             "question": faq.question,
+    #             "answer": faq.answer,
+    #             "project_id": faq.project_id
+    #         }, 200
+    #     else:
+    #         faqs = FAQ.query.all()
+    #         return [
+    #             {
+    #                 "id": faq.fid,
+    #                 "question": faq.question,
+    #                 "answer": faq.answer,
+    #                 "project_id": faq.project_id
+    #             } for faq in faqs
+    #         ], 200
+
+    @jwt_required()
+    def post(self):
+        
+        data = request.json
+
+        # getting current user project_id
+        project_id = self.get_project_id()
+        
         try:
-            user = user_datastore.create_user(email=email, password=hashed_password)
+            new_faq = Faq(
+                question=data.get('question'),
+                answer=data.get('answer'),
+                project_id=project_id
+            )
+            db.session.add(new_faq)
             db.session.commit()
-
-            user_datastore.add_role_to_user(user, role_name)
-            db.session.commit()
-
-            return jsonify({"message": "User registered successfully"}, 201)
+            return jsonify({"message": "FAQ created successfully."}, 201)
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": "Error registering user", "error": str(e)}, 500)
+            return jsonify({"message": str(e)}, 500)
+
+    # def put(self, faq_id):
+        
+    #     data = request.json
+    #     faq = FAQ.query.get(faq_id)
+    #     if not faq:
+    #         return {"message": "FAQ not found"}, 404
+    #     faq.question = data.get("question", faq.question)
+    #     faq.answer = data.get("answer", faq.answer)
+    #     faq.project_id = data.get("project_id", faq.project_id)
+    #     try:
+    #         db.session.commit()
+    #         return {"status": "success", "message": "FAQ updated successfully."}, 200
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         return {"status": "error", "message": str(e)}, 500
+
+    # def delete(self, faq_id):
+        
+    #     faq = FAQ.query.get(faq_id)
+    #     if not faq:
+    #         return {"message": "FAQ not found"}, 404
+    #     try:
+    #         db.session.delete(faq)
+    #         db.session.commit()
+    #         return {"message": "FAQ deleted successfully."}, 200
+    #     except Exception as e:
+    #         db.session.rollback()
+    #         return {"status": "error", "message": str(e)}, 500

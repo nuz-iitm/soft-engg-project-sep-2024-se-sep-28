@@ -52,9 +52,21 @@ export default {
 
   methods: {
     addFaq() {
+      const authToken = localStorage.getItem('auth-token');
       if (this.newFaq.question && this.newFaq.answer) {
-        this.faqs.push({ ...this.newFaq });
-        this.newFaq = { question: "", answer: "" };
+        fetch('http://127.0.0.1:5000/api/faq', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(this.newFaq)
+        })
+        .then(data => {
+          console.log(data[0].message);
+          alert(data[0].message);
+        })
+
       } else {
         alert("Please fill in both the question and the answer.");
       }

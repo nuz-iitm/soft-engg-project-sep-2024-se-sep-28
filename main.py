@@ -35,7 +35,7 @@ def create_app():
         import backend.application.controller.controllers
 
         # api imports
-        from backend.application.controller.api import Register, Login, Logout
+        from backend.application.controller.api import Register, Login, Logout, FAQResource
 
         # user registration endpoint
         api.add_resource(Register, "/api/register")
@@ -43,6 +43,8 @@ def create_app():
         api.add_resource(Login, "/api/login")
         # user logout endpoint
         api.add_resource(Logout, "/api/logout")
+        # faq endpoint
+        api.add_resource(FAQResource, "/api/faq")
         
     return app, api
 
