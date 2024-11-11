@@ -121,7 +121,7 @@ class Register(Resource):
         else:
             return jsonify({"message": "User not part of the course"}, 500)
 
-class FAQResource(Resource):
+class FaqResource(Resource):
 
     def get_project_id(self):
         user_id = get_jwt_identity()['user_id']
@@ -140,7 +140,7 @@ class FAQResource(Resource):
         faqs = Faq.query.filter_by(project_id=project_id).all()
 
         
-        faq_list = [{"id": faq.f_id, "question": faq.question, "answer": faq.answer} for faq in faqs]
+        faq_list = [{"f_id": faq.f_id, "question": faq.question, "answer": faq.answer} for faq in faqs]
         return jsonify(faq_list)
 
     @jwt_required()
@@ -164,31 +164,37 @@ class FAQResource(Resource):
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
 
-    # def put(self, faq_id):
-        
-    #     data = request.json
-    #     faq = FAQ.query.get(faq_id)
-    #     if not faq:
-    #         return {"message": "FAQ not found"}, 404
-    #     faq.question = data.get("question", faq.question)
-    #     faq.answer = data.get("answer", faq.answer)
-    #     faq.project_id = data.get("project_id", faq.project_id)
-    #     try:
-    #         db.session.commit()
-    #         return {"status": "success", "message": "FAQ updated successfully."}, 200
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         return {"status": "error", "message": str(e)}, 500
 
-    # def delete(self, faq_id):
-        
-    #     faq = FAQ.query.get(faq_id)
-    #     if not faq:
-    #         return {"message": "FAQ not found"}, 404
-    #     try:
-    #         db.session.delete(faq)
-    #         db.session.commit()
-    #         return {"message": "FAQ deleted successfully."}, 200
-    #     except Exception as e:
-    #         db.session.rollback()
-    #         return {"status": "error", "message": str(e)}, 500
+class FaqUpdateResource(Resource):
+
+    @jwt_required()
+    def put(self, f_id):
+        data = request.json
+
+        try:
+            # faq_id = request.args.get('id')
+            updated_faq = Faq.query.filter_by(f_id=f_id).first()
+
+            if not updated_faq:
+                return jsonify({"message": "FAQ not found"}), 404
+
+            updated_faq.question = data.get('question', updated_faq.question)
+            updated_faq.answer = data.get('answer', updated_faq.answer)
+
+            db.session.commit()
+            return jsonify({"message": "FAQ updated successfully."}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
+
+    @jwt_required()
+    def delete(self, f_id):
+        # faq_id = request.args.get('id')
+        faq = Faq.query.filter_by(f_id=f_id).first()
+
+        if not faq:
+            return jsonify({"message": "FAQ not found"}, 404)
+
+        db.session.delete(faq)
+        db.session.commit()
+        return jsonify({"message": "FAQ deleted successfully."}, 200)
