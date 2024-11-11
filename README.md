@@ -3,7 +3,8 @@
 -  "cd" to the directory
 - Pip install the dependencies from requirement.txt by "pip install -r requirements.txt"
 - run by "python main.py"
-- For admin login use test email and password in "test_users_role_passwords.txt" file
+- you can only use email and password in "test_users_role_passwords.txt" file right now
 - Always make sure your local version is same as main branch before pushing anything to main branch (pull first before pushing)
 - Don't push broken code to main
+
 
