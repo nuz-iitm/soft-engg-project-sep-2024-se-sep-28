@@ -6,6 +6,8 @@ from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
 import flask_login
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.datastructures import FileStorage
+import csv
 
 
 bcrypt = Bcrypt(app)
@@ -16,6 +18,13 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
+
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
 
 
 # api for login
@@ -198,3 +207,48 @@ class FaqUpdateResource(Resource):
         db.session.delete(faq)
         db.session.commit()
         return jsonify({"message": "FAQ deleted successfully."}, 200)
+    
+
+
+class BulkUpload(Resource):
+
+    @jwt_required()
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('csvFile', type=FileStorage, location='files')
+        args = parser.parse_args()
+
+        if 'csvFile' not in request.files:
+            return jsonify({"message": "No file part"}, 400)
+
+        file = request.files['csvFile']
+
+        if file.filename == '':
+            return jsonify({"message": "No selected file"}, 400)
+
+        if file and allowed_file(file.filename):
+            students_data = []
+            try:
+
+                # Read the CSV file
+                reader = csv.DictReader(file.stream.read().decode('utf-8').splitlines())
+                for row in reader:
+                    students_data.append({
+                        'name': row['name'],
+                        'email': row['email'],
+                        'project_id': int(row['project_id'])
+                    })
+
+                # Insert data into the database
+                for student in students_data:
+                    new_student = Students(name=student['name'], email=student['email'], project_id=student['project_id'])
+                    db.session.add(new_student)
+
+                db.session.commit()
+                return jsonify({"message": "Students added successfully"}, 201)
+
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"message": str(e)}, 500)
+        else:
+            return jsonify({"message": "Invalid file type"}, 400)
