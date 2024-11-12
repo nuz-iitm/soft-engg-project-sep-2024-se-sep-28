@@ -211,7 +211,7 @@ class FaqUpdateResource(Resource):
         data = request.json
 
         try:
-
+            # getting faq to be updated
             updated_faq = Faq.query.filter_by(f_id=f_id).first()
 
             if not updated_faq:
@@ -229,7 +229,7 @@ class FaqUpdateResource(Resource):
     @jwt_required()
     @role_required('instructor')
     def delete(self, f_id):
-        # faq_id = request.args.get('id')
+        # getting faq to be deleted
         faq = Faq.query.filter_by(f_id=f_id).first()
 
         if not faq:
@@ -306,7 +306,7 @@ class StudentUpdate(Resource):
         data = request.json
 
         try:
-
+            # getting student to be updated
             updated_student = Students.query.filter_by(s_id=s_id).first()
 
             if not updated_student:
@@ -333,7 +333,7 @@ class StudentUpdate(Resource):
     @jwt_required()
     @role_required('admin')
     def delete(self, s_id):
-
+        # getting student to be deleted
         student = Students.query.filter_by(s_id=s_id).first()
 
         # deleting from user model

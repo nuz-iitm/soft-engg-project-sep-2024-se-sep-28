@@ -38,18 +38,18 @@ def create_app():
         from backend.application.controller.api import Register, Login, Logout, FaqResource,FaqUpdateResource, BulkUpload, StudentUpdate
 
         # user registration endpoint
-        api.add_resource(Register, "/api/register")
+        api.add_resource(Register, "/api/register") # post
         # user login endpoint
-        api.add_resource(Login, "/api/login")
+        api.add_resource(Login, "/api/login") # post
         # user logout endpoint
-        api.add_resource(Logout, "/api/logout")
+        api.add_resource(Logout, "/api/logout") # post
         # faq endpoint
-        api.add_resource(FaqResource, "/api/faq")
-        api.add_resource(FaqUpdateResource, "/api/faq/<int:f_id>")
+        api.add_resource(FaqResource, "/api/faq") # get, post
+        api.add_resource(FaqUpdateResource, "/api/faq/<int:f_id>") # put, delete
         # bulk upload endpoint
-        api.add_resource(BulkUpload, "/api/student")
+        api.add_resource(BulkUpload, "/api/student") # get, post(csv file)
         # student endpoint
-        api.add_resource(StudentUpdate, "/api/student/<int:s_id>")
+        api.add_resource(StudentUpdate, "/api/student/<int:s_id>") # put, delete
 
     return app, api
 
