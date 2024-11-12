@@ -26,6 +26,23 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 
+# to get project_id of current user(instructor)
+def get_project_id_instructor():
+    user_id = get_jwt_identity()['user_id']
+    user = User.query.get(user_id)
+    instructor = Instructors.query.filter_by(email=user.email).first()
+    project_id = instructor.project_id
+    return project_id
+
+
+# to get project_id of current user(student)
+def get_project_id_student():
+    user_id = get_jwt_identity()['user_id']
+    user = User.query.get(user_id)
+    student = Students.query.filter_by(email=user.email).first()
+    project_id = student.project_id
+    return project_id
+
 
 # api for login
 class Login(Resource):
@@ -132,20 +149,13 @@ class Register(Resource):
 
 class FaqResource(Resource):
 
-    def get_project_id(self):
-        user_id = get_jwt_identity()['user_id']
-        user = User.query.get(user_id)
-        instructor = Instructors.query.filter_by(email=user.email).first()
-        project_id = instructor.project_id
-        return project_id
-
     @jwt_required()
     def get(self):
 
         """
         Retrieve all FAQ entries 
         """
-        project_id = self.get_project_id()
+        project_id = get_project_id_instructor()
         faqs = Faq.query.filter_by(project_id=project_id).all()
 
         
@@ -158,7 +168,7 @@ class FaqResource(Resource):
         data = request.json
 
         # getting current user project_id
-        project_id = self.get_project_id()
+        project_id = get_project_id_instructor()
         
         try:
             new_faq = Faq(
@@ -211,6 +221,17 @@ class FaqUpdateResource(Resource):
 
 
 class BulkUpload(Resource):
+
+    @jwt_required()
+    def get(self):
+
+        """
+        Retrieve all Student enteries
+        """
+        students = Students.query.all()
+
+        student_list = [{"s_id": student.s_id, "name": student.name, "email": student.email, 'project_id': student.project_id} for student in students]
+        return jsonify(student_list)
 
     @jwt_required()
     def post(self):

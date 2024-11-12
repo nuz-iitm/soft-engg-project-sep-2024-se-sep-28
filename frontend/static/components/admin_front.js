@@ -90,7 +90,7 @@ export default {
 
   mounted() {
     const authToken = localStorage.getItem('auth-token');
-    fetch('http://127.0.0.1:5000/api/student_data', {
+    fetch('http://127.0.0.1:5000/api/student', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -105,12 +105,30 @@ export default {
   methods: {
     updateStudent(id, editedStudent) {
       const index = this.students.findIndex(s => s.id === id);
-      if (index !== -1) {
-        this.$set(this.students[index], 'name', editedStudent.name);
-        this.$set(this.students[index], 'email', editedStudent.email);
-        this.$set(this.students[index], 'project', editedStudent.project);
-        this.$set(this.students[index], 'editMode', false);
-      }
+      const authToken = localStorage.getItem('auth-token');
+      fetch(`http://127.0.0.1:5000/api/student/${f_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ question, answer })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.message);
+        alert(data.message);
+        if (index !== -1) {
+          this.$set(this.students[index], 'name', editedStudent.name);
+          this.$set(this.students[index], 'email', editedStudent.email);
+          this.$set(this.students[index], 'project_id', editedStudent.project_id);
+          this.$set(this.students[index], 'editMode', false);
+        }
+      })
+      .catch(error => {
+        console.error('Error updating FAQ:', error);
+        alert('Failed to update FAQ');
+      });
     },
     editStudent(student) {
       this.editedStudent = { ...student };
@@ -141,7 +159,7 @@ export default {
 
       formData.append('csvFile', this.$refs.csvInput.files[0]);
 
-      fetch('http://127.0.0.1:5000/api/upload_csv', {
+      fetch('http://127.0.0.1:5000/api/student', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${authToken}`
