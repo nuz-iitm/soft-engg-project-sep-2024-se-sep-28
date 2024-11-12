@@ -5,6 +5,8 @@ from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
 import flask_login
+from functools import wraps
+from flask_login import current_user
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.datastructures import FileStorage
 import csv
@@ -20,6 +22,19 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
+# Role-based access decorator
+def role_required(*roles):
+    def wrapper(fn):
+        def wrapped(*args, **kwargs):
+            user = User.query.get(get_jwt_identity()['user_id'])
+            
+            # Check if the user has any of the required roles
+            if any(role in [role.name for role in user.roles] for role in roles):
+                return fn(*args, **kwargs)
+            else:
+                return jsonify({"message": "Access denied"}, 403)
+        return wrapped
+    return wrapper
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -150,6 +165,7 @@ class Register(Resource):
 class FaqResource(Resource):
 
     @jwt_required()
+    @role_required('instructor', 'student')
     def get(self):
 
         """
@@ -163,6 +179,7 @@ class FaqResource(Resource):
         return jsonify(faq_list)
 
     @jwt_required()
+    @role_required('instructor')
     def post(self):
         
         data = request.json
@@ -187,6 +204,7 @@ class FaqResource(Resource):
 class FaqUpdateResource(Resource):
 
     @jwt_required()
+    @role_required('instructor')
     def put(self, f_id):
         data = request.json
 
@@ -207,6 +225,7 @@ class FaqUpdateResource(Resource):
             return jsonify({"message": str(e)}, 500)
 
     @jwt_required()
+    @role_required('instructor')
     def delete(self, f_id):
         # faq_id = request.args.get('id')
         faq = Faq.query.filter_by(f_id=f_id).first()
@@ -234,6 +253,7 @@ class BulkUpload(Resource):
         return jsonify(student_list)
 
     @jwt_required()
+    @role_required('admin')
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('csvFile', type=FileStorage, location='files')

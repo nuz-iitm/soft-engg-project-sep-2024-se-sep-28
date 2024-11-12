@@ -86,7 +86,7 @@ export default {
         .then(response => response.json())
         .then(data => {
           console.log(data.message);
-          alert(data.message);
+          alert(data[0].message);
           this.newFaq = { question: "", answer: "" };
           this.faqs.push({ ...data.faq, editMode: false });
         });
@@ -112,7 +112,7 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data.message);
+        console.log(data[0].message);
         alert(data.message);
         this.$set(this.faqs.find(faq => faq.f_id === f_id), 'question', question);
         this.$set(this.faqs.find(faq => faq.f_id === f_id), 'answer', answer);
@@ -136,7 +136,7 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data.message);
+        console.log(data[0].message);
         alert(data.message);
 
         // Remove the FAQ from the local state

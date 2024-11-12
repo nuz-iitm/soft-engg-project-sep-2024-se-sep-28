@@ -116,7 +116,7 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data.message);
+        console.log(data[0].message);
         alert(data.message);
         if (index !== -1) {
           this.$set(this.students[index], 'name', editedStudent.name);
