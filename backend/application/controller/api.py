@@ -27,11 +27,13 @@ def role_required(*roles):
     def wrapper(fn):
         def wrapped(*args, **kwargs):
             user = User.query.get(get_jwt_identity()['user_id'])
-            
+
             # Check if the user has any of the required roles
             if any(role in [role.name for role in user.roles] for role in roles):
                 return fn(*args, **kwargs)
             else:
+                print([role.name for role in user.roles])
+                print(roles)
                 return jsonify({"message": "Access denied"}, 403)
         return wrapped
     return wrapper
@@ -209,7 +211,7 @@ class FaqUpdateResource(Resource):
         data = request.json
 
         try:
-            # faq_id = request.args.get('id')
+
             updated_faq = Faq.query.filter_by(f_id=f_id).first()
 
             if not updated_faq:
@@ -242,6 +244,7 @@ class FaqUpdateResource(Resource):
 class BulkUpload(Resource):
 
     @jwt_required()
+    @role_required('admin')
     def get(self):
 
         """
@@ -293,3 +296,55 @@ class BulkUpload(Resource):
                 return jsonify({"message": str(e)}, 500)
         else:
             return jsonify({"message": "Invalid file type"}, 400)
+
+
+class StudentUpdate(Resource):
+
+    @jwt_required()
+    @role_required('admin')
+    def put(self, s_id):
+        data = request.json
+
+        try:
+
+            updated_student = Students.query.filter_by(s_id=s_id).first()
+
+            if not updated_student:
+                return jsonify({"message": "student not found"}), 404
+            
+            # updating email in user model
+
+            email = updated_student.email
+            user = User.query.filter_by(email=email).first()
+            user.email = email
+
+            updated_student.name = data.get('name', updated_student.name)
+            updated_student.email = data.get('email', updated_student.email)
+            updated_student.project_id = data.get('project_id', updated_student.project_id)
+
+            db.session.commit()
+
+            
+            return jsonify({"message": "Student updated successfully."}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
+    
+    @jwt_required()
+    @role_required('admin')
+    def delete(self, s_id):
+
+        student = Students.query.filter_by(s_id=s_id).first()
+
+        # deleting from user model
+        email = student.email
+        user = User.query.filter_by(email=email).first()
+
+        if not student:
+            return jsonify({"message": "Student not found"}, 404)
+
+        db.session.delete(student)
+        if user:
+            db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "Student deleted successfully."}, 200)

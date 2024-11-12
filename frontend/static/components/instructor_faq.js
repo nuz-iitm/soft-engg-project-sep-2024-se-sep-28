@@ -125,7 +125,6 @@ export default {
     },
 
     deleteFaq(f_id) {
-      console.log(f_id)
       const authToken = localStorage.getItem('auth-token');
       fetch(`http://127.0.0.1:5000/api/faq/${f_id}`, {
         method: 'DELETE',
@@ -137,7 +136,7 @@ export default {
       .then(response => response.json())
       .then(data => {
         console.log(data[0].message);
-        alert(data.message);
+        alert(data[0].message);
 
         // Remove the FAQ from the local state
         this.faqs = this.faqs.filter(faq => faq.f_id !== f_id);

@@ -57,8 +57,8 @@ export default {
                       <td v-else><input type="text" v-model="editedStudent.project_id" class="form-control"></td>
                       <td>
                         <button v-if="!student.editMode" @click="editStudent(student)" class="btn btn-sm me-2" style="background-color: #28a745; color: white;">Edit</button>
-                        <button v-if="student.editMode" @click="updateStudent(student.id, editedStudent)" class="btn btn-sm me-2" style="background-color: #6A9F8A; color: white;">Update</button>
-                        <button v-if="!student.editMode" @click="deleteStudent(student.id)" class="btn btn-sm" style="background-color: #dc3545; color: white;">Delete</button>
+                        <button v-if="student.editMode" @click="updateStudent(student.s_id, editedStudent)" class="btn btn-sm me-2" style="background-color: #6A9F8A; color: white;">Update</button>
+                        <button v-if="!student.editMode" @click="deleteStudent(student.s_id)" class="btn btn-sm" style="background-color: #dc3545; color: white;">Delete</button>
                         <button v-if="student.editMode" @click="cancelEdit(student)" class="btn btn-sm" style="background-color: #DC3545; color: white;">Cancel</button>
                       </td>
                     </tr>
@@ -77,11 +77,11 @@ export default {
       uploadingCSV: false,
       uploadProgress: 0,
       students: [
-        { id: 1, name: "John Doe", email: "john@example.com", project_id: "Project A", editMode: false },
-        { id: 2, name: "Jane Smith", email: "jane@example.com", project_id: "Project B", editMode: false },
+        { s_id: 1, name: "John Doe", email: "john@example.com", project_id: "Project A", editMode: false },
+        { s_id: 2, name: "Jane Smith", email: "jane@example.com", project_id: "Project B", editMode: false },
         // dummy students
       ],
-      editedStudent: { id: null, name: '', email: '', project_id: '' }
+      editedStudent: { s_id: null, name: '', email: '', project_id: '' }
     };
   },
   components: {
@@ -103,21 +103,21 @@ export default {
   },
 
   methods: {
-    updateStudent(id, editedStudent) {
-      const index = this.students.findIndex(s => s.id === id);
+    updateStudent(s_id, editedStudent) {
+      const index = this.students.findIndex(s => s.s_id === s_id);
       const authToken = localStorage.getItem('auth-token');
-      fetch(`http://127.0.0.1:5000/api/student/${f_id}`, {
+      fetch(`http://127.0.0.1:5000/api/student/${s_id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
         },
-        body: JSON.stringify({ question, answer })
+        body: JSON.stringify(editedStudent)
       })
       .then(response => response.json())
       .then(data => {
         console.log(data[0].message);
-        alert(data.message);
+        alert(data[0].message);
         if (index !== -1) {
           this.$set(this.students[index], 'name', editedStudent.name);
           this.$set(this.students[index], 'email', editedStudent.email);
@@ -126,19 +126,39 @@ export default {
         }
       })
       .catch(error => {
-        console.error('Error updating FAQ:', error);
-        alert('Failed to update FAQ');
+        console.error('Error updating Student:', error);
+        alert('Failed to update Student');
       });
     },
     editStudent(student) {
       this.editedStudent = { ...student };
       student.editMode = true;
     },
-    deleteStudent(id) {
-      const index = this.students.findIndex(s => s.id === id);
-      if (index !== -1) {
-        this.students.splice(index, 1);
-      }
+    deleteStudent(s_id) {
+      const index = this.students.findIndex(s => s.s_id === s_id);
+      const authToken = localStorage.getItem('auth-token');
+      fetch(`http://127.0.0.1:5000/api/student/${s_id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data[0].message);
+        alert(data[0].message);
+
+        // Remove the student from the local state
+        if (index !== -1) {
+          this.students.splice(index, 1);
+        }
+      })
+      .catch(error => {
+        console.error('Error deleting Student:', error);
+        alert('Failed to delete Student');
+      });
+
     },
     cancelEdit(student) {
       student.name = this.editedStudent.name;
