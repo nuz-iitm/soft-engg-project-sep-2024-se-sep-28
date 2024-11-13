@@ -67,6 +67,8 @@ export default {
           this.$router.push("/instructor_front");
         }else if(data[0].role_id === 3){
           this.$router.push("/student_front");
+        }else if(data[0].role_id === 1){
+          this.$router.push("/admin_front");
         }
       })
       .catch(error => {

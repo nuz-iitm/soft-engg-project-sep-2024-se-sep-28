@@ -14,25 +14,108 @@ import instructor_faq from './components/instructor_faq.js';
 import instructor_alerts from './components/instructor_alerts.js';
 import student_front from './components/student_front.js'
 import student_discuss from './components/student_discuss.js';
+import student_submission from './components/student_submission.js'
 
 const routes = [
-  { path: '/', name: 'LandingPage', component: LandingPage },
-  { path: '/login', name: 'UserLogin', component: UserLogin },
-  { path: '/register', name: 'UserRegistration', component: UserRegistration },
-  { path: '/admin_front', name: 'admin_front', component: admin_front },
-  { path: '/admin_edit_inst', name: 'admin_edit_inst', component: admin_edit_inst },
-  { path: '/admin_griev', name: 'admin_griev', component: admin_griev },
-  { path: '/admin-login', name:'AdminLogin', component:AdminLogin},
-  { path: '/instructor_front', name:'instructor_front', component:instructor_front},
-  { path: '/instructor_project', name:'instructor_project', component:instructor_project},
-  { path: '/instructor_teams', name:'instructor_teams', component:instructor_teams},
-  { path: '/instructor_discuss', name:'instructor_discuss', component:instructor_discuss},
-  { path: '/instructor_faq', name:'instructor_faq', component:instructor_faq},
-  { path: '/instructor_alerts', name:'instructor_alerts', component:instructor_alerts},
-  { path: '/student_front', name:'student_front', component:student_front},
-  { path: '/student_discuss', name:'student_discuss', component:student_discuss},
+  { 
+    path: '/',
+    name: 'LandingPage', 
+    component: LandingPage,
+    meta: { requiresAuth: false } 
+  },
+  { 
+    path: '/login', 
+    name: 'UserLogin', 
+    component: UserLogin,
+    meta: { requiresAuth: false } 
+  },
+  { path: '/register', 
+    name: 'UserRegistration', 
+    component: UserRegistration,
+    meta: { requiresAuth: false } 
+  },
+  { 
+    path: '/admin_front', 
+    name: 'admin_front', 
+    component: admin_front,
+    meta: { requiresAuth: true } 
+  },
+  { 
+    path: '/admin_edit_inst', 
+    name: 'admin_edit_inst', 
+    component: admin_edit_inst,
+    meta: { requiresAuth: true } 
+  },
+  { 
+    path: '/admin_griev', 
+    name: 'admin_griev', 
+    component: admin_griev,
+    meta: { requiresAuth: true } 
+  },
+  { 
+    path: '/admin-login', 
+    name:'AdminLogin', 
+    component:AdminLogin,
+    meta: { requiresAuth: false }
+  },
+  { 
+    path: '/instructor_front', 
+    name:'instructor_front', 
+    component:instructor_front,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/instructor_project', 
+    name:'instructor_project', 
+    component:instructor_project,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/instructor_teams', 
+    name:'instructor_teams', 
+    component:instructor_teams,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/instructor_discuss', 
+    name:'instructor_discuss', 
+    component:instructor_discuss,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/instructor_faq', 
+    name:'instructor_faq', 
+    component:instructor_faq,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/instructor_alerts', 
+    name:'instructor_alerts', 
+    component:instructor_alerts,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/student_front', 
+    name:'student_front', 
+    component:student_front,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/student_discuss', 
+    name:'student_discuss', 
+    component:student_discuss,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/student_submission', 
+    name:'student_submission', 
+    component:student_submission,
+    meta: { requiresAuth: true }
+  },
   // Other routes can be added here, e.g., UserRegistration
 ];
+
+
 
 export default new VueRouter({
   routes,
