@@ -9,7 +9,34 @@ export default {
           </div>
 
           <!-- Main Content -->
+          
           <div class="col-md-9" style="padding: 40px;">
+            <!-- Add Instructor Button -->
+            <button class="btn btn-primary mb-3" @click="addInstructor">Add New Instructor</button>
+            <div v-if="showAddForm" class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+              <h2>Add Instructor</h2>
+              <form @submit.prevent="addInstructorConfirm">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name</label>
+                  <input type="text" v-model="newInstructor.name" required class="form-control" id="name">
+                </div>
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" v-model="newInstructor.email" required class="form-control" id="email">
+                </div>
+                <div class="mb-3">
+                  <label for="project" class="form-label">Project</label>
+                  <input type="text" v-model="newInstructor.project_id" required class="form-control" id="project">
+                </div>
+                <div class="mb-3">
+                  <label for="role" class="form-label">Designation</label>
+                  <input type="text" v-model="newInstructor.designation" required class="form-control" id="role">
+                </div>
+                <button type="submit" class="btn btn-primary me-2">Submit</button>
+                <button @click="showAddForm = false" class="btn btn-secondary">Cancel</button>
+              </form>
+            </div>
+            <!-- Instructor List -->
             <h1 class="text-center mt-5" style="font-size: 2.5rem; font-weight: bold; color: #2F4F4F;">INSTRUCTOR LIST</h1>
             <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.1); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
               <table class="table mt-3 text-white" style="color: #2F4F4F;">
@@ -55,7 +82,9 @@ export default {
                 { i_id: 3, name: "Michael Johnson", email: "michael@example.com", project_id: "Project C", designation: "Instructor", editMode: false },
                 { i_id: 4, name: "Emily Davis", email: "emily@example.com", project_id: "Project D", designation: "Teaching Assistant", editMode: false }
               ],
-              editedInstructor: { i_id: null, name: '', email: '', project_id: '', designation: '' }
+              newInstructor: {name:'', email:'', project_id:'', designation:''},
+              editedInstructor: { i_id: null, name: '', email: '', project_id: '', designation: '' },
+              showAddForm: false,
             }
         },
     mounted() {
@@ -71,10 +100,39 @@ export default {
         .then(data => this.instructors = data.map(instructor => ({ ...instructor, editMode: false })));
     },
     methods: {
+      addInstructor(){
+        this.showAddForm = true;
+      },
+      addInstructorConfirm() {
+        const authToken = localStorage.getItem('auth-token');
+        fetch('http://127.0.0.1:5000/api/instructor', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(this.newInstructor)
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data[0].message);
+          alert(data[0].message);
+          // Add the new instructor to the local state
+          this.instructors.push({ ...this.newInstructor, i_id: data.instructor.i_id, editMode: false });
+          this.showAddForm = false;
+        })
+        .catch(error => {
+          console.error('Error adding Instructor:', error);
+          alert('Failed to add Instructor');
+        });
+    
+        // Clear the form after submission
+        // this.newInstructor = { name: '', email: '', project_id: '', designation: '' };
+      },
       updateInstructor(i_id, editedInstructor) {
         const index = this.instructors.findIndex(i => i.i_id === i_id);
         const authToken = localStorage.getItem('auth-token');
-        fetch(`http://127.0.0.1:5000/api/student/${i_id}`, {
+        fetch(`http://127.0.0.1:5000/api/instructor/${i_id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

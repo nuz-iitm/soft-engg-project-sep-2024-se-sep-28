@@ -312,23 +312,27 @@ class StudentUpdate(Resource):
             if not updated_student:
                 return jsonify({"message": "student not found"}), 404
             
-            # updating email in user model
+            old_email = updated_student.email
+            new_email = data.get('email')
 
-            email = updated_student.email
-            user = User.query.filter_by(email=email).first()
-            user.email = email
-
-            updated_student.name = data.get('name', updated_student.name)
-            updated_student.email = data.get('email', updated_student.email)
-            updated_student.project_id = data.get('project_id', updated_student.project_id)
+            #updating student
+            updated_student.name = data.get('name')
+            updated_student.email = data.get('email')
+            updated_student.project_id = data.get('project_id')
 
             db.session.commit()
 
-            
+            #updating email in user model
+            user = User.query.filter_by(email=old_email).first()
+            if user:
+                user.email = new_email
+                db.session.commit()
+
             return jsonify({"message": "Student updated successfully."}, 200)
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
+
     
     @jwt_required()
     @role_required('admin')
@@ -364,9 +368,29 @@ class InstructorResource(Resource):
                         "name": instructor.name,
                         "email": instructor.email, 
                         'project_id': instructor.project_id,
-                        'Designation': instructor.designation
+                        'designation': instructor.designation
                         } for instructor in instructors]
         return jsonify(instructor_list)
+    
+    @jwt_required()
+    @role_required('admin')
+    def post(self):
+        
+        data = request.json
+        
+        try:
+            new_instructor = Instructors(
+                name=data.get('name'),
+                email=data.get('email'),
+                project_id=data.get('project_id'),
+                designation=data.get('designation')
+            )
+            db.session.add(new_instructor)
+            db.session.commit()
+            return jsonify({"message": "Instructor added successfully."}, 201)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
 
 class InstructorUpdateResource(Resource):
 
@@ -382,24 +406,43 @@ class InstructorUpdateResource(Resource):
             if not updated_instructor:
                 return jsonify({"message": "instructor not found"}), 404
             
-            # updating email in user model
+            old_email = updated_instructor.email
+            new_email = data.get('email')
 
-            email = updated_instructor.email
-            user = User.query.filter_by(email=email).first()
-            user.email = email
-
-            updated_instructor.name = data.get('name', updated_instructor.name)
-            updated_instructor.email = data.get('email', updated_instructor.email)
-            updated_instructor.project_id = data.get('project_id', updated_instructor.project_id)
-            updated_instructor.designation = data.get('designation', updated_instructor.designation)
-            
+            updated_instructor.name = data.get('name')
+            updated_instructor.email = new_email
+            updated_instructor.project_id = data.get('project_id')
+            updated_instructor.designation = data.get('designation')
             db.session.commit()
+            # updating email in user model
+            user = User.query.filter_by(email=old_email).first()
+            if user:
+                user.email = new_email
+                db.session.commit()
 
-            
             return jsonify({"message": "Instructor updated successfully."}, 200)
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
+    
+    @jwt_required()
+    @role_required('admin')
+    def delete(self, i_id):
+        # getting instructor to be deleted
+        instructor = Instructors.query.filter_by(i_id=i_id).first()
+
+        # deleting from user model
+        email = instructor.email
+        user = User.query.filter_by(email=email).first()
+
+        if not instructor:
+            return jsonify({"message": "Instructor not found"}, 404)
+
+        db.session.delete(instructor)
+        if user:
+            db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "Instructor deleted successfully."}, 200)
 
 
 
