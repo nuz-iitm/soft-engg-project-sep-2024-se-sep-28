@@ -163,7 +163,7 @@ export default {
     cancelEdit(student) {
       student.name = this.editedStudent.name;
       student.email = this.editedStudent.email;
-      student.project = this.editedStudent.project;
+      student.project_id = this.editedStudent.project_id;
       student.editMode = false;
     },
     uploadCSV(e) {

@@ -35,7 +35,17 @@ def create_app():
         import backend.application.controller.controllers
 
         # api imports
-        from backend.application.controller.api import Register, Login, Logout, FaqResource,FaqUpdateResource, BulkUpload, StudentUpdate
+        from backend.application.controller.api import (
+            Register, 
+            Login, 
+            Logout, 
+            FaqResource,
+            FaqUpdateResource, 
+            BulkUpload, 
+            StudentUpdate, 
+            QueryResource, 
+            InstructorResource,
+            InstructorUpdateResource)
 
         # user registration endpoint
         api.add_resource(Register, "/api/register") # post
@@ -50,6 +60,11 @@ def create_app():
         api.add_resource(BulkUpload, "/api/student") # get, post(csv file)
         # student endpoint
         api.add_resource(StudentUpdate, "/api/student/<int:s_id>") # put, delete
+        # instructor endpoint
+        api.add_resource(InstructorResource, "/api/instructor") # get, post
+        api.add_resource(InstructorUpdateResource, "/api/instructor/<int:i_id>")
+        # queries endpoint
+        api.add_resource(QueryResource, "/api/query") # get, post, put, delete
 
     return app, api
 

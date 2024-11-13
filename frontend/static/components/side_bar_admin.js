@@ -13,10 +13,6 @@ export default {
                      style="background:none; border:2px black solid; font-size: 1.1rem; padding: 10px; font-weight: 500;">
           Technical Grievances
         </router-link>
-        <router-link to="" class="btn mb-2 w-100 text-center" 
-                     style="background:none; border:2px black solid; font-size: 1.1rem; padding: 10px; font-weight: 500;">
-          Settings
-        </router-link>
         <router-link to="/" class="btn mt-4 w-100 text-center" 
                      style="background:none; border:2px red solid; font-size: 1.1rem; padding: 10px; font-weight: 500;">
           Log out

@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects
+from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects,Queries
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -348,3 +348,157 @@ class StudentUpdate(Resource):
             db.session.delete(user)
         db.session.commit()
         return jsonify({"message": "Student deleted successfully."}, 200)
+    
+class InstructorResource(Resource):
+
+    @jwt_required()
+    @role_required('admin')
+    def get(self):
+
+        """
+        Retrieve all Instructor enteries
+        """
+        instructors = Instructors.query.all()
+
+        instructor_list = [{"i_id": instructor.i_id,
+                        "name": instructor.name,
+                        "email": instructor.email, 
+                        'project_id': instructor.project_id,
+                        'Designation': instructor.designation
+                        } for instructor in instructors]
+        return jsonify(instructor_list)
+
+class InstructorUpdateResource(Resource):
+
+    @jwt_required()
+    @role_required('admin')
+    def put(self, i_id):
+        data = request.json
+
+        try:
+            # getting student to be updated
+            updated_instructor = Instructors.query.filter_by(i_id=i_id).first()
+
+            if not updated_instructor:
+                return jsonify({"message": "instructor not found"}), 404
+            
+            # updating email in user model
+
+            email = updated_instructor.email
+            user = User.query.filter_by(email=email).first()
+            user.email = email
+
+            updated_instructor.name = data.get('name', updated_instructor.name)
+            updated_instructor.email = data.get('email', updated_instructor.email)
+            updated_instructor.project_id = data.get('project_id', updated_instructor.project_id)
+            updated_instructor.designation = data.get('designation', updated_instructor.designation)
+            
+            db.session.commit()
+
+            
+            return jsonify({"message": "Instructor updated successfully."}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
+
+
+
+class QueryResource(Resource):
+    
+    @jwt_required()
+    @role_required('instructor', 'student')
+    def get(self, q_id=None):
+        """
+        Retrieve a specific query by ID or all queries if no ID is provided.
+        Accessible by instructor, student, or admin roles.
+        """
+        if q_id:
+            query = Queries.query.get(q_id)
+            if not query:
+                return jsonify({"message": "Query not found"}, 404)
+            return {
+                "q_id": query.q_id,
+                "desc": query.desc,
+                "s_id": query.s_id,
+                "i_id": query.i_id,
+                "qdate": query.qdate,
+                "response": query.response,
+                "project_id": query.project_id
+            }, 200
+        else:
+            queries = Queries.query.all()
+            query_list = [
+                {
+                    "q_id": query.q_id,
+                    "desc": query.desc,
+                    "s_id": query.s_id,
+                    "i_id": query.i_id,
+                    "qdate": query.qdate,
+                    "response": query.response,
+                    "project_id": query.project_id
+                }
+                for query in queries
+            ]
+            return jsonify(query_list)
+
+    @jwt_required()
+    @role_required('student')
+    def post(self):
+        """
+        Allow students to create a new query.
+        """
+        data = request.json
+        s_id = get_jwt_identity()['user_id']  # Fetch the student ID from the JWT token
+        project_id = data.get("project_id")
+        desc = data.get("desc")
+        
+        if not desc:
+            return jsonify({"message": "Description is required"}, 400)
+
+        new_query = Queries(desc=desc, s_id=s_id, project_id=project_id)
+        try:
+            db.session.add(new_query)
+            db.session.commit()
+            return jsonify({"status": "success", "message": "Query created successfully."}, 201)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"status": "error", "message": str(e)}, 500)
+
+    @jwt_required()
+    @role_required('instructor')
+    def put(self, q_id):
+        """
+        Allow instructors to update an existing query's response.
+        """
+        data = request.json
+        response = data.get("response")
+        
+        query = Queries.query.get(q_id)
+        if not query:
+            return jsonify({"message": "Query not found"}, 404)
+
+        query.response = response
+
+        try:
+            db.session.commit()
+            return jsonify({"status": "success", "message": "Query updated successfully."}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"status": "error", "message": str(e)}, 500)
+
+    @jwt_required()
+    @role_required('instructor')
+    def delete(self, q_id):
+        """
+        Allow admin to delete a query.
+        """
+        query = Queries.query.get(q_id)
+        if not query:
+            return jsonify({"message": "Query not found"}, 404)
+        try:
+            db.session.delete(query)
+            db.session.commit()
+            return jsonify({"message": "Query deleted successfully."}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"status": "error", "message": str(e)}, 500)

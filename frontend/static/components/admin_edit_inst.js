@@ -18,19 +18,25 @@ export default {
                     <th style="color: #2F4F4F; padding: 10px;">Name</th>
                     <th style="color: #2F4F4F; padding: 10px;">Email</th>
                     <th style="color: #2F4F4F; padding: 10px;">Project</th>
-                    <th style="color: #2F4F4F; padding: 10px;">Role</th>
+                    <th style="color: #2F4F4F; padding: 10px;">Designation</th>
                     <th style="color: #2F4F4F; padding: 10px;">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(instructor, index) in instructors" :key="index" style="text-align: center;">
-                    <td style="color: #2F4F4F; padding: 10px;">{{ instructor.name }}</td>
-                    <td style="color: #2F4F4F; padding: 10px;">{{ instructor.email }}</td>
-                    <td style="color: #2F4F4F; padding: 10px;">{{ instructor.project }}</td>
-                    <td style="color: #2F4F4F; padding: 10px;">{{ instructor.role }}</td>
+                    <td v-if="!instructor.editMode" style="color: #2F4F4F; padding: 10px;">{{ instructor.name }}</td>
+                    <td v-else><input type="text" v-model="editedInstructor.name" class="form-control"></td>
+                    <td v-if="!instructor.editMode" style="color: #2F4F4F; padding: 10px;">{{ instructor.email }}</td>
+                    <td v-else><input type="text" v-model="editedInstructor.email" class="form-control"></td>
+                    <td v-if="!instructor.editMode" style="color: #2F4F4F; padding: 10px;">{{ instructor.project_id }}</td>
+                    <td v-else><input type="text" v-model="editedInstructor.project_id" class="form-control"></td>
+                    <td v-if="!instructor.editMode" style="color: #2F4F4F; padding: 10px;">{{ instructor.designation }}</td>
+                    <td v-else><input type="text" v-model="editedInstructor.designation" class="form-control"></td>
                     <td style="padding: 10px;">
-                      <button class="btn btn-sm me-2" style="background-color: #28a745; color: white; margin-right: 5px;" @click="editInstructor(instructor)">Edit</button>
-                      <button class="btn btn-sm" style="background-color: #dc3545; color: white;" @click="deleteInstructor(instructor)">Delete</button>
+                      <button v-if="!instructor.editMode" @click="editInstructor(instructor)" class="btn btn-sm me-2" style="background-color: #28a745; color: white; margin-right: 5px;">Edit</button>
+                      <button v-if="instructor.editMode" @click="updateInstructor(instructor.i_id, editedInstructor)" class="btn btn-sm me-2" style="background-color: #6A9F8A; color: white;">Update</button>
+                      <button v-if="!instructor.editMode" @click="deleteInstructor(instructor.i_id)" class="btn btn-sm" style="background-color: #dc3545; color: white;">Delete</button>
+                      <button v-if="instructor.editMode" @click="cancelEdit(instructor)" class="btn btn-sm" style="background-color: #DC3545; color: white;">Cancel</button>
                     </td>
                   </tr>
                 </tbody>
@@ -44,26 +50,92 @@ export default {
     data() {
             return {
               instructors: [
-                { id: 1, name: "John Doe", email: "john@example.com", project: "Project A", role: "Instructor" },
-                { id: 2, name: "Jane Smith", email: "jane@example.com", project: "Project B", role: "Teaching Assistant" },
-                { id: 3, name: "Michael Johnson", email: "michael@example.com", project: "Project C", role: "Instructor" },
-                { id: 4, name: "Emily Davis", email: "emily@example.com", project: "Project D", role: "Teaching Assistant" }
-              ]
+                { i_id: 1, name: "John Doe", email: "john@example.com", project_id: "Project A", designation: "Instructor", editMode: false },
+                { i_id: 2, name: "Jane Smith", email: "jane@example.com", project_id: "Project B", designation: "Teaching Assistant", editMode: false },
+                { i_id: 3, name: "Michael Johnson", email: "michael@example.com", project_id: "Project C", designation: "Instructor", editMode: false },
+                { i_id: 4, name: "Emily Davis", email: "emily@example.com", project_id: "Project D", designation: "Teaching Assistant", editMode: false }
+              ],
+              editedInstructor: { i_id: null, name: '', email: '', project_id: '', designation: '' }
             }
         },
-    components:{
-        side_bar_admin
+    mounted() {
+      const authToken = localStorage.getItem('auth-token');
+      fetch('http://127.0.0.1:5000/api/instructor', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+      })
+        .then(response => response.json())
+        .then(data => this.instructors = data.map(instructor => ({ ...instructor, editMode: false })));
     },
     methods: {
-      editInstructor(instructor) {
-        console.log("Edit instructor:", instructor);
+      updateInstructor(i_id, editedInstructor) {
+        const index = this.instructors.findIndex(i => i.i_id === i_id);
+        const authToken = localStorage.getItem('auth-token');
+        fetch(`http://127.0.0.1:5000/api/student/${i_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(editedInstructor)
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data[0].message);
+          alert(data[0].message);
+          if (index !== -1) {
+            this.$set(this.instructors[index], 'name', editedInstructor.name);
+            this.$set(this.instructors[index], 'email', editedInstructor.email);
+            this.$set(this.instructors[index], 'project_id', editedInstructor.project_id);
+            this.$set(this.instructors[index], 'designation', editedInstructor.designation);
+            this.$set(this.instructors[index], 'editMode', false);
+          }
+        })
+        .catch(error => {
+          console.error('Error updating Student:', error);
+          alert('Failed to update Student');
+        });
       },
-      deleteInstructor(instructor) {
-        const index = this.instructors.indexOf(instructor);
+      editInstructor(instructor) {
+        this.editedInstructor = { ...instructor };
+        instructor.editMode = true;
+      },
+      cancelEdit(instructor) {
+        instructor.name = this.editedInstructor.name;
+        instructor.email = this.editedInstructor.email;
+        instructor.project_id = this.editedInstructor.project_id;
+        instructor.designation = this.editedInstructor.designation;
+        instructor.editMode = false;
+      },
+      deleteInstructor(i_id) {
+        const index = this.instructors.findIndex(i => i.i_id === i_id);
+        const authToken = localStorage.getItem('auth-token');
+        fetch(`http://127.0.0.1:5000/api/instructor/${i_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+        console.log(data[0].message);
+        alert(data[0].message);
+        // remove instructor from local state
         if (index !== -1) {
           this.instructors.splice(index, 1);
         }
-        console.log("Delete instructor:", instructor);
-      }
-    }
+      })
+      .catch(error => {
+        console.error('Error deleting Instructor:', error);
+        alert('Failed to delete Instructor');
+      });
+    },
+  },
+  components:{
+      side_bar_admin
+  },
 }
