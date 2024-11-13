@@ -404,7 +404,7 @@ class InstructorUpdateResource(Resource):
             updated_instructor = Instructors.query.filter_by(i_id=i_id).first()
 
             if not updated_instructor:
-                return jsonify({"message": "instructor not found"}), 404
+                return jsonify({"message": "instructor not found"}, 404)
             
             old_email = updated_instructor.email
             new_email = data.get('email')
@@ -446,20 +446,18 @@ class InstructorUpdateResource(Resource):
 
 
 
-class QueryResource(Resource):
+class StudentQueryResource(Resource):
     
     @jwt_required()
-    @role_required('instructor', 'student')
-    def get(self, q_id=None):
+    @role_required('student')
+    def get(self):
         """
-        Retrieve a specific query by ID or all queries if no ID is provided.
-        Accessible by instructor, student, or admin roles.
+        Retrieve all queries 
         """
-        if q_id:
-            query = Queries.query.get(q_id)
-            if not query:
-                return jsonify({"message": "Query not found"}, 404)
-            return {
+
+        queries = Queries.query.all()
+        query_list = [
+            {
                 "q_id": query.q_id,
                 "desc": query.desc,
                 "s_id": query.s_id,
@@ -467,22 +465,10 @@ class QueryResource(Resource):
                 "qdate": query.qdate,
                 "response": query.response,
                 "project_id": query.project_id
-            }, 200
-        else:
-            queries = Queries.query.all()
-            query_list = [
-                {
-                    "q_id": query.q_id,
-                    "desc": query.desc,
-                    "s_id": query.s_id,
-                    "i_id": query.i_id,
-                    "qdate": query.qdate,
-                    "response": query.response,
-                    "project_id": query.project_id
-                }
-                for query in queries
-            ]
-            return jsonify(query_list)
+            }
+            for query in queries
+        ]
+        return jsonify(query_list)
 
     @jwt_required()
     @role_required('student')
@@ -492,9 +478,9 @@ class QueryResource(Resource):
         """
         data = request.json
         s_id = get_jwt_identity()['user_id']  # Fetch the student ID from the JWT token
-        project_id = data.get("project_id")
         desc = data.get("desc")
-        
+        project_id = get_project_id_student()
+
         if not desc:
             return jsonify({"message": "Description is required"}, 400)
 
@@ -507,6 +493,80 @@ class QueryResource(Resource):
             db.session.rollback()
             return jsonify({"status": "error", "message": str(e)}, 500)
 
+class StudentQueryUpdateResource(Resource):
+
+    @jwt_required()
+    @role_required('student')
+    def get(self, q_id):
+         
+        """
+        Retrieve a specific query by ID
+        """
+        
+        if q_id:
+            query = Queries.query.get(q_id)
+            
+            return jsonify({
+                "q_id": query.q_id,
+                "desc": query.desc,
+                "s_id": query.s_id,
+                "i_id": query.i_id,
+                "qdate": query.qdate,
+                "response": query.response,
+                "project_id": query.project_id
+            }, 200)
+        else:
+            return jsonify({"message": "Query not found"}, 404)
+
+class InstructorQueryResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def get(self):
+        """
+        Retrieve all queries
+        """
+        queries = Queries.query.all()
+        query_list = [
+            {
+                "q_id": query.q_id,
+                "desc": query.desc,
+                "s_id": query.s_id,
+                "i_id": query.i_id,
+                "qdate": query.qdate,
+                "response": query.response,
+                "project_id": query.project_id
+            }
+            for query in queries
+        ]
+        return jsonify(query_list, 200)
+
+
+        
+class InstructorUpdateQueryResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def get(self, q_id):
+        """
+        Retrieve a specific query by ID.
+        """
+        if q_id:
+            query = Queries.query.get(q_id)
+            if not query:
+                return jsonify({"message": "Query not found"}), 404
+            return jsonify({
+                "q_id": query.q_id,
+                "desc": query.desc,
+                "s_id": query.s_id,
+                "i_id": query.i_id,
+                "qdate": query.qdate,
+                "response": query.response,
+                "project_id": query.project_id
+            }, 200)
+        else:
+            return jsonify({"message": "query not found"}, 404)
+
     @jwt_required()
     @role_required('instructor')
     def put(self, q_id):
@@ -515,7 +575,7 @@ class QueryResource(Resource):
         """
         data = request.json
         response = data.get("response")
-        
+
         query = Queries.query.get(q_id)
         if not query:
             return jsonify({"message": "Query not found"}, 404)
@@ -533,7 +593,7 @@ class QueryResource(Resource):
     @role_required('instructor')
     def delete(self, q_id):
         """
-        Allow admin to delete a query.
+        Allow instructors to delete a query.
         """
         query = Queries.query.get(q_id)
         if not query:

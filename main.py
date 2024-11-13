@@ -42,10 +42,13 @@ def create_app():
             FaqResource,
             FaqUpdateResource, 
             BulkUpload, 
-            StudentUpdate, 
-            QueryResource, 
+            StudentUpdate,  
             InstructorResource,
-            InstructorUpdateResource)
+            InstructorUpdateResource,
+            StudentQueryResource,
+            StudentQueryUpdateResource,
+            InstructorQueryResource,
+            InstructorUpdateQueryResource)
 
         # user registration endpoint
         api.add_resource(Register, "/api/register") # post
@@ -64,7 +67,10 @@ def create_app():
         api.add_resource(InstructorResource, "/api/instructor") # get, post
         api.add_resource(InstructorUpdateResource, "/api/instructor/<int:i_id>")
         # queries endpoint
-        api.add_resource(QueryResource, "/api/query") # get, post, put, delete
+        api.add_resource(StudentQueryResource, "/api/student_query") # get, post
+        api.add_resource(StudentQueryUpdateResource, "/api/student_query/<int:q_id>") # get
+        api.add_resource(InstructorQueryResource, "/api/instructor_query") # get
+        api.add_resource(InstructorUpdateQueryResource, "/api/instructor_query/<int:q_id>")# get put delete
 
     return app, api
 
