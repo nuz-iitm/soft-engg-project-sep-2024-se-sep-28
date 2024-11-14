@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects,Queries, Milestones
+from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -605,6 +605,40 @@ class InstructorUpdateQueryResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"status": "error", "message": str(e)}, 500)
+
+
+class ProjectResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor', 'student')
+    def get(self):
+        # getting project statement
+        try:
+            project_id = get_project_id_instructor()
+            project = Projects.query.get(project_id)
+
+            return jsonify({
+                "statement": project.statement
+            }, 200)
+        except Exception as e:
+            return jsonify({"message": str(e)}, 500)
+        
+    
+    @jwt_required()
+    @role_required('instructor')
+    def put(self):
+        # adding a statment
+        try:
+            data = request.json
+            project_id = get_project_id_instructor()
+            project = Projects.query.get(project_id)
+            project.statement = data.get("statement")
+            db.session.commit()
+            return jsonify({"message": "Statement add successfully."}, 200)
+        except Exception as e:
+            print(str(e))
+            return jsonify({"message": str(e)}, 500)
+
 
 class MilestoneResource(Resource):
 
