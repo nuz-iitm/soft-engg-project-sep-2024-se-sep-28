@@ -61,10 +61,12 @@ export default {
 
   methods: {
     fetchQueries() {
+      const authToken = localStorage.getItem('auth-token');
       fetch('http://127.0.0.1:5000/api/instructor_query', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
         }
       })
         .then(response => {
@@ -96,22 +98,19 @@ export default {
       const question = this.studentQuestions[index];
 
       if (question.response.trim()) {
+        const authToken = localStorage.getItem('auth-token');
         fetch(`http://127.0.0.1:5000/api/instructor_query/${question.q_id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
           },
           body: JSON.stringify({ response: question.response })
         })
           .then(response => response.json())
           .then(data => {
-            if (data.status === "success") {
-              alert('Response submitted successfully.');
-              console.log(data);
-            } else {
-              alert('Failed to submit response.');
-              console.log(data);
-            }
+            console.log(data[0].message);
+            alert(data[0].message);
           })
           .catch(error => {
             console.error('Error submitting response:', error);
