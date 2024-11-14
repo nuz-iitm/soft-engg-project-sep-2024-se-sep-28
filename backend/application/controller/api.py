@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects,Queries
+from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects,Queries, Milestones
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -605,3 +605,100 @@ class InstructorUpdateQueryResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"status": "error", "message": str(e)}, 500)
+
+class MilestoneResource(Resource):
+
+    @jwt_required()
+    @role_required('student', 'instructor')
+    def get(self):
+        """
+        Retrieve all milestones for the project id.
+        """
+        user_id = get_jwt_identity()['user_id']
+        user = User.query.get(user_id)
+
+        # get project_id for the user
+        if 'student' in [role.name for role in user.roles]:
+                project_id = get_project_id_student()
+        elif 'instructor' in [role.name for role in user.roles]:
+            project_id = get_project_id_instructor()
+        
+        # get milestones for the project
+        milestones = Milestones.query.filter_by(project_id=project_id).all()
+        
+        milestone_list = [
+            {
+                "m_id": milestone.m_id,
+                "desc": milestone.desc,
+                "deadline": milestone.deadline,
+                "sub_date": milestone.sub_date,
+                "submission": milestone.submission
+            }
+            for milestone in milestones
+        ]
+        return jsonify(milestone_list)
+
+    @jwt_required()
+    @role_required('instructor')
+    def post(self):
+        """
+        Create a new milestone.
+        """
+        data = request.json
+
+        new_milestone = Milestones(
+            project_id=get_project_id_instructor(),
+            desc=data.get("desc"),
+            deadline=data.get("deadline")
+        )
+
+        try:
+            db.session.add(new_milestone)
+            db.session.commit()
+            return jsonify({"message": "Milestone created successfully"}, 201)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
+
+
+class MilestoneUpdateResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def put(self, m_id):
+        """
+        Update an existing milestone.
+        """
+        data = request.json
+   
+        milestone = Milestones.query.get(m_id)
+        if not milestone:
+            return jsonify({"message": "Milestone not found"}, 404)
+
+        milestone.desc = data.get("desc")
+        milestone.deadline = data.get("deadline")
+
+        try:
+            db.session.commit()
+            return jsonify({"message": "Milestone updated successfully"}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
+
+    @jwt_required()
+    @role_required('instructor')
+    def delete(self, m_id):
+        """
+        Delete an existing milestone.
+        """
+        milestone = Milestones.query.get(m_id)
+        if not milestone:
+            return jsonify({"message": "Milestone not found"}, 404)
+
+        try:
+            db.session.delete(milestone)
+            db.session.commit()
+            return jsonify({"message": "Milestone deleted successfully"}, 200)
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)}, 500)
