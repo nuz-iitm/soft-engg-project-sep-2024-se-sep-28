@@ -17,17 +17,22 @@ export default {
             Go to FAQ
           </router-link>
 
-          <!-- Scrollable Student Questions Section -->
-          <div style="max-height: calc(100vh - 150px); overflow-y: auto;">
+          <!-- No Queries Section -->
+          <div v-if="studentQuestions.length === 0" class="text-center" style="margin-top: 50px;">
+            <p style="font-size: 1.2rem; color: #6A9F8A;">No student queries available at the moment.</p>
+          </div>
+
+          <!-- Queries Section -->
+          <div v-else style="max-height: calc(100vh - 150px); overflow-y: auto;">
             <div v-for="(question, index) in studentQuestions" :key="index" class="mb-4 card text-center" 
                  style="background-color: rgba(255, 255, 255, 0.1); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 6px 12px rgba(47, 79, 79, 0.2);">
               
-              <h3 class="mt-3" style="font-size: 1.5rem; font-weight: bold;">{{ question.studentName }}</h3>
-              <p style="font-size: 1.1rem; margin-bottom: 15px;">{{ question.questionText }}</p>
+              <h3 class="mt-3" style="font-size: 1.5rem; font-weight: bold;">Student ID: {{ question.s_id }}</h3>
+              <p style="font-size: 1.1rem; margin-bottom: 15px;">{{ question.desc }}</p>
               
               <div class="form-group" style="text-align: left;">
                 <label for="responseText" style="font-size: 1rem;">Your Response:</label>
-                <textarea v-model="question.responseText" class="form-control" rows="2" 
+                <textarea v-model="question.response" class="form-control" rows="2" 
                   placeholder="Enter your response here..."
                   style="background-color: #F5F5F5; color: #2F4F4F; border: 1px solid #d1d1d1; border-radius: 5px; padding: 10px;">
                 </textarea>
@@ -46,27 +51,72 @@ export default {
 
   data() {
     return {
-      studentQuestions: [
-        { 
-          studentName: "Student A", 
-          questionText: "What about doing 100 push-ups daily?", 
-          responseText: ""
-        },
-        { 
-          studentName: "Student B", 
-          questionText: "Is it feasible to train for a marathon?", 
-          responseText: ""
-        }
-      ]
+      studentQuestions: [] 
     };
   },
 
+  mounted() {
+    this.fetchQueries();
+  },
+
   methods: {
+    fetchQueries() {
+      fetch('http://127.0.0.1:5000/api/instructor_query', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json(); 
+        })
+        .then(data => {
+          
+          const queries = data[0]; 
+          this.studentQuestions = queries.map(query => ({
+            q_id: query.q_id,
+            desc: query.desc,
+            s_id: query.s_id,
+            i_id: query.i_id,
+            qdate: query.qdate,
+            response: query.response || "", 
+            project_id: query.project_id,
+          }));
+        })
+        .catch(error => {
+          console.error('Error fetching queries:', error);
+          alert('Failed to fetch student queries.');
+        });
+    },
+  
     submitResponse(index) {
       const question = this.studentQuestions[index];
-      if (question.responseText.trim()) {
-        alert(`Your response to ${question.studentName}: \n${question.responseText}`);
-        question.responseText = ""; // Clear the response after submission
+
+      if (question.response.trim()) {
+        fetch(`http://127.0.0.1:5000/api/instructor_query/${question.q_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ response: question.response })
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === "success") {
+              alert('Response submitted successfully.');
+              console.log(data);
+            } else {
+              alert('Failed to submit response.');
+              console.log(data);
+            }
+          })
+          .catch(error => {
+            console.error('Error submitting response:', error);
+            alert('Failed to submit response.');
+          });
       } else {
         alert("Please enter a response.");
       }

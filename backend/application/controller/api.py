@@ -520,8 +520,8 @@ class StudentQueryUpdateResource(Resource):
 
 class InstructorQueryResource(Resource):
 
-    @jwt_required()
-    @role_required('instructor')
+    # @jwt_required()
+    # @role_required('instructor')
     def get(self):
         """
         Retrieve all queries
@@ -545,8 +545,8 @@ class InstructorQueryResource(Resource):
         
 class InstructorUpdateQueryResource(Resource):
 
-    @jwt_required()
-    @role_required('instructor')
+    # @jwt_required()
+    # @role_required('instructor')
     def get(self, q_id):
         """
         Retrieve a specific query by ID.
@@ -567,8 +567,8 @@ class InstructorUpdateQueryResource(Resource):
         else:
             return jsonify({"message": "query not found"}, 404)
 
-    @jwt_required()
-    @role_required('instructor')
+    # @jwt_required()
+    # @role_required('instructor')
     def put(self, q_id):
         """
         Allow instructors to update an existing query's response.
@@ -589,8 +589,8 @@ class InstructorUpdateQueryResource(Resource):
             db.session.rollback()
             return jsonify({"status": "error", "message": str(e)}, 500)
 
-    @jwt_required()
-    @role_required('instructor')
+    # @jwt_required()
+    # @role_required('instructor')
     def delete(self, q_id):
         """
         Allow instructors to delete a query.
