@@ -25,10 +25,15 @@ export default {
           <div class="card" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
             <h2 style="font-size: 1.8rem; font-weight: bold;">Project Statement and Milestones</h2>
             <p style="margin-bottom: 1rem;">Review your project objectives, key milestones, and deadlines here.</p>
+
+            <!-- Project Statement -->
+            <div v-html="statement" style="color: #2F4F4F;"></div>
+
+            <!-- Milestones -->
             <ul style="list-style-type: none; padding: 0; color: #2F4F4F;">
-              <li style="margin-bottom: 0.5rem;"><strong>Milestone 1:</strong> Submit Proposal - <em>Deadline: Nov 10, 2023</em></li>
-              <li style="margin-bottom: 0.5rem;"><strong>Milestone 2:</strong> Design Submission - <em>Deadline: Dec 5, 2023</em></li>
-              <li style="margin-bottom: 0.5rem;"><strong>Milestone 3:</strong> Final Project Submission - <em>Deadline: Jan 15, 2024</em></li>
+              <li v-for="milestone in milestones" :key="milestone.m_id" style="margin-bottom: 0.5rem;">
+                <strong>{{ milestone.desc }}</strong> - <em>Deadline: {{ milestone.deadline }}</em>
+              </li>
             </ul>
           </div>
         </div>
@@ -39,4 +44,38 @@ export default {
   components: {
     side_bar_stdd,
   },
+  data(){
+    return{
+      statement: '',
+      milestones:[
+        { m_id: null, desc: "Something Something?", deadline: ""},
+      ],
+    }
+
+  },
+
+  mounted(){
+    const authToken = localStorage.getItem('auth-token');
+    fetch('http://127.0.0.1:5000/api/project_statement', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+    })
+      .then(response => response.json())
+      .then(data => {
+        this.statement = data[0].statement;
+        console.log(data);
+      });
+    fetch('http://127.0.0.1:5000/api/milestone', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+    })
+      .then(response => response.json())
+      .then(data => this.milestones = data.map(milestone => ({ ...milestone })));
+  }
 };

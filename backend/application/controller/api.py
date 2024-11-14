@@ -613,8 +613,16 @@ class ProjectResource(Resource):
     @role_required('instructor', 'student')
     def get(self):
         # getting project statement
-        try:
+        user_id = get_jwt_identity()['user_id']
+        user = User.query.get(user_id)
+
+        # get project_id for the user
+        if 'student' in [role.name for role in user.roles]:
+            project_id = get_project_id_student()
+        elif 'instructor' in [role.name for role in user.roles]:
             project_id = get_project_id_instructor()
+        
+        try:
             project = Projects.query.get(project_id)
 
             return jsonify({
