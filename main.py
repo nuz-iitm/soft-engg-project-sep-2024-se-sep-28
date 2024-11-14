@@ -48,7 +48,10 @@ def create_app():
             StudentQueryResource,
             StudentQueryUpdateResource,
             InstructorQueryResource,
-            InstructorUpdateQueryResource)
+            InstructorUpdateQueryResource,
+            MilestoneResource,
+            MilestoneUpdateResource,
+            ProjectResource)
 
         # user registration endpoint
         api.add_resource(Register, "/api/register") # post
@@ -71,6 +74,11 @@ def create_app():
         api.add_resource(StudentQueryUpdateResource, "/api/student_query/<int:q_id>") # get
         api.add_resource(InstructorQueryResource, "/api/instructor_query") # get
         api.add_resource(InstructorUpdateQueryResource, "/api/instructor_query/<int:q_id>")# get put delete
+        # milestone endpoint
+        api.add_resource(MilestoneResource, '/api/milestone') #get post
+        api.add_resource(MilestoneUpdateResource, '/api/milestone/<int:m_id>') # put delete
+        # project statement endpoint
+        api.add_resource(ProjectResource, '/api/project_statement') # get put
 
     return app, api
 
