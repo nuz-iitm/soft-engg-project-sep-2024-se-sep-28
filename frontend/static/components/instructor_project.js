@@ -55,6 +55,26 @@ export default {
             <div class="col-md-10 mb-5">
               <div class="card" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 6px 12px rgba(47, 79, 79, 0.2);">
                 <h2 class="text-center" style="font-size: 2.2rem; font-weight: bold; margin-bottom: 20px;">Milestones</h2>
+                <!-- Form for adding a new milestone -->
+                <form @submit.prevent="addMilestone()">
+                  <div class="row align-items-center mb-3">
+                    <div class="col-md-8 mb-2">
+                      <input type="text" v-model="newMilestone.desc" class="form-control"
+                        style="background-color: #F0E5D8; border: none; color: #2F4F4F; padding: 10px; border-radius: 5px;"
+                        placeholder="Enter milestone description...">
+                    </div>
+                    <div class="col-md-3 mb-2">
+                      <input type="date" v-model="newMilestone.deadline" class="form-control"
+                        style="background-color: rgba(211, 233, 215, 0.9); color: #2F4F4F; border: none; padding: 10px; border-radius: 5px;">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn mt-3" 
+                    style="background-color: #4CAF50; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px;">
+                    + Add Milestone
+                  </button>
+                </form>
+
+                <!-- List of milestones -->
                 <div v-for="(milestone, index) in milestones" :key="index" class="row align-items-center mb-3">
                   <div class="col-md-8 mb-2">
                     <span v-if="!milestone.editMode">{{ milestone.desc }}</span>
@@ -67,23 +87,19 @@ export default {
                       style="background-color: rgba(211, 233, 215, 0.9); color: #2F4F4F; border: none; padding: 10px; border-radius: 5px;">
                   </div>
                   <div class="col-md-1 mb-2">
-                    <button v-if="!milestone.editMode" @click="editMilestone(milestone)" class="btn btn-primary" style="font-size: 0.8rem; padding: 3px 6px;">
+                    <button v-if="!milestone.editMode" @click="editMilestone(index)" class="btn btn-primary" style="font-size: 0.8rem; padding: 3px 6px;">
                       Edit
                     </button>
                     <div v-else>
-                      <button @click="saveMilestone(milestone, index)" class="btn btn-success mr-2" style="font-size: 0.8rem; padding: 3px 6px;">
+                      <button @click="saveEditedMilestone(index,milestone.m_id)" class="btn btn-success mr-2" style="font-size: 0.8rem; padding: 3px 6px;">
                         Save
                       </button>
-                      <button @click="cancelMilestone(milestone)" class="btn btn-secondary" style="font-size: 0.8rem; padding: 3px 6px;">
+                      <button @click="cancelEdit(milestone)" class="btn btn-secondary" style="font-size: 0.8rem; padding: 3px 6px;">
                         Cancel
                       </button>
                     </div>
                   </div>
                 </div>
-                <button @click="addMilestone()" class="btn mt-3" 
-                  style="background-color: #4CAF50; color: white; font-weight: bold; padding: 10px 20px; border-radius: 5px;">
-                  + Add Milestone
-                </button>
               </div>
             </div>
           </div>
@@ -97,8 +113,9 @@ export default {
       statement: "",
       statementDisplayed: false,
       milestones: [
-        { desc: "Something Something?", deadline: "", editMode: false },
-      ]
+        { m_id: null, desc: "Something Something?", deadline: "", editMode: false },
+      ],
+      newMilestone: { desc: "", deadline: "" }
     };
   },
 
@@ -112,12 +129,21 @@ export default {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken}`
-        },
+        }
     })
       .then(response => response.json())
       .then(data => {
-        this.statement=data[0].statement;
-      })
+        this.statement = data[0].statement;
+      });
+    fetch('http://127.0.0.1:5000/api/milestone', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+    })
+      .then(response => response.json())
+      .then(data => this.milestones = data.map(milestone => ({ ...milestone, editMode: false })));
   },
 
   methods: {
@@ -126,7 +152,30 @@ export default {
     },
     
     addMilestone() {
-      this.milestones.push({ desc: "", deadline: "", editMode: false });
+      if (this.newMilestone.desc.trim() !== '' && this.newMilestone.deadline) {
+        const authToken = localStorage.getItem('auth-token');
+        fetch('http://127.0.0.1:5000/api/milestone', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(this.newMilestone)
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data[0].message);
+          alert(data[0].message);
+          this.milestones.push({ ...this.newMilestone, m_id: data[0].m_id });
+          this.newMilestone = { desc: "", deadline: "" };
+        })
+        .catch(error => {
+          console.error('Error adding milestone:', error);
+          alert('Failed to add milestone');
+        });
+      } else {
+        alert('Please fill in all fields.');
+      }
     },
     
     editStatement() {
@@ -142,7 +191,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${authToken}`
           },
-          body: JSON.stringify({ statement: this.statement})
+          body: JSON.stringify({ statement: this.statement })
         })
         .then(response => response.json())
         .then(data => {
@@ -155,27 +204,43 @@ export default {
           console.error('Error adding statement:', error);
           alert('Failed to add statement');
         });
-        
       }
     },
     
     cancelEdit() {
-      // this.statement = "";  // Clear the statement to make it editable again
+      this.newMilestone = { desc: "", deadline: "" };
       this.statementDisplayed = false;
     },
     
-    editMilestone(milestone) {
-      milestone.editMode = true;
+    editMilestone(index) {
+      this.milestones[index].editMode = true;
     },
     
-    saveMilestone(milestone, index) {
-      // Handle saving the updated milestone
-      console.log("Saved Milestone:", milestone);
-      milestone.editMode = false;
+    saveEditedMilestone(index,m_id) {
+      const authToken = localStorage.getItem('auth-token');
+      fetch(`http://127.0.0.1:5000/api/milestone/${m_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(this.milestones[index])
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data[0].message);
+        alert(data[0].message);
+        this.milestones[index].editMode = false;
+      })
+      .catch(error => {
+        console.error('Error updating milestone:', error);
+        alert('Failed to update milestone');
+      });
     },
     
-    cancelMilestone(milestone) {
+    cancelEdit(milestone) {
       milestone.editMode = false;
+      this.newMilestone = { desc: "", deadline: "" };
     }
   }
 };
