@@ -8,7 +8,7 @@ import admin_edit_inst from './components/admin_edit_inst.js';
 import admin_griev from './components/admin_griev.js';
 import instructor_front from './components/instructor_front.js';
 import instructor_project from './components/instructor_project.js';
-import instructor_teams from './components/instructor_teams.js';
+import instructor_students from './components/instructor_students.js';
 import instructor_discuss from './components/instructor_discuss.js';
 import instructor_faq from './components/instructor_faq.js';
 import instructor_alerts from './components/instructor_alerts.js';
@@ -72,9 +72,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   { 
-    path: '/instructor_teams', 
-    name:'instructor_teams', 
-    component:instructor_teams,
+    path: '/instructor_students', 
+    name:'instructor_students', 
+    component:instructor_students,
     meta: { requiresAuth: true }
   },
   { 
