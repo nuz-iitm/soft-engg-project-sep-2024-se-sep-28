@@ -15,7 +15,7 @@ export default {
           <div class="card text-center mb-5" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
             <h2 style="font-size: 1.8rem; font-weight: bold;">FAQ</h2>
             <p>Find answers to commonly asked questions or ask a new one.</p>
-            <a href="/faq" class="btn" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Go to FAQ</a>
+            <router-link to="/student_faq" class="btn" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Go to FAQ</router-link>
           </div>
 
           <!-- Search and Previously Asked Questions -->

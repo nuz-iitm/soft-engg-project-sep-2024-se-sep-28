@@ -15,6 +15,7 @@ import instructor_alerts from './components/instructor_alerts.js';
 import student_front from './components/student_front.js'
 import student_discuss from './components/student_discuss.js';
 import student_submission from './components/student_submission.js'
+import student_faq from './components/student_faq.js'
 
 const routes = [
   { 
@@ -110,6 +111,12 @@ const routes = [
     path: '/student_submission', 
     name:'student_submission', 
     component:student_submission,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/student_faq', 
+    name:'student_faq', 
+    component:student_faq,
     meta: { requiresAuth: true }
   },
   // Other routes can be added here, e.g., UserRegistration
