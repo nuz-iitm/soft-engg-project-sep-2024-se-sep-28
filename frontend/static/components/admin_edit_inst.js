@@ -118,7 +118,7 @@ export default {
           console.log(data[0].message);
           alert(data[0].message);
           // Add the new instructor to the local state
-          this.instructors.push({ ...this.newInstructor, i_id: data.instructor.i_id, editMode: false });
+          this.instructors.push({ ...this.newInstructor, editMode: false });
           this.showAddForm = false;
         })
         .catch(error => {
