@@ -42,7 +42,8 @@ def create_app():
             FaqResource,
             FaqUpdateResource, 
             BulkUpload, 
-            StudentUpdate,  
+            StudentUpdate,
+            StudentListResource,  
             InstructorResource,
             InstructorUpdateResource,
             StudentQueryResource,
@@ -68,6 +69,8 @@ def create_app():
         api.add_resource(BulkUpload, "/api/student") # get, post(csv file)
         # student endpoint
         api.add_resource(StudentUpdate, "/api/student/<int:s_id>") # put, delete
+        # student list endpoint(with column is registered)
+        api.add_resource(StudentListResource, "/api/student_list") # get
         # instructor endpoint
         api.add_resource(InstructorResource, "/api/instructor") # get, post
         api.add_resource(InstructorUpdateResource, "/api/instructor/<int:i_id>")

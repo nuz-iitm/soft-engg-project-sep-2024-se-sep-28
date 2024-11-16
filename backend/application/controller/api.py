@@ -297,6 +297,27 @@ class BulkUpload(Resource):
         else:
             return jsonify({"message": "Invalid file type"}, 400)
 
+class StudentListResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def get(self):
+        project_id = get_project_id_instructor()
+
+        # Get all students in the current project
+        students = Students.query.filter_by(project_id=project_id).all()
+
+        # Prepare response
+        student_list = [
+            {
+                's_id': student.s_id,
+                'name': student.name,
+                'email': student.email,
+                'is_registered': User.query.filter_by(email=student.email).first() is not None
+            } for student in students]
+
+        return jsonify(student_list)
+
 
 class StudentUpdate(Resource):
 
