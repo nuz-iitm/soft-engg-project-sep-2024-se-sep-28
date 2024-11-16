@@ -52,8 +52,9 @@ def create_app():
             MilestoneResource,
             MilestoneUpdateResource,
             ProjectResource,
-            githubResource)
-
+            githubResource,
+            DashBoardResource)
+        
         # user registration endpoint
         api.add_resource(Register, "/api/register") # post
         # user login endpoint
@@ -82,6 +83,8 @@ def create_app():
         api.add_resource(ProjectResource, '/api/project_statement') # get put
         # git hub data endpoint
         api.add_resource(githubResource, '/api/git_data') # post (to add git hub dummy data)
+        # dashboard endpoints
+        api.add_resource(DashBoardResource, '/api/dash_top_studd')
 
     return app, api
 

@@ -787,3 +787,27 @@ class githubResource(Resource):
                 return jsonify({"message": str(e)}, 500)
         else:
             return jsonify({"message": "Invalid file type"}, 400)
+        
+class DashBoardResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def get(self):
+        project_id = get_project_id_instructor()
+
+        # Calculate commits per student
+        top_students = db.session.query(
+            githubdata.s_id, 
+            Students.name,
+            db.func.count(githubdata.g_id).label('commit_count')
+        ).join(Students, githubdata.s_id == Students.s_id).filter(githubdata.project_id == project_id).group_by(githubdata.s_id).order_by(db.desc('commit_count')).limit(3).all()
+
+        # Prepare response
+        dashboard_data = [
+            {
+                's_id': student[0],
+                'name': student[1],
+                'commits': student[2]
+            } for student in top_students]
+
+        return jsonify(dashboard_data)
