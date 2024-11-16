@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones
+from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones, githubdata
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -744,3 +744,46 @@ class MilestoneUpdateResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
+        
+class githubResource(Resource):
+
+    # for adding dummy git hub data to the githubdata model
+    def post(self):
+
+        if 'csvFile' not in request.files:
+            return jsonify({"message": "No file part"}, 400)
+
+        file = request.files['csvFile']
+        
+
+        if file.filename == '':
+            return jsonify({"message": "No selected file"}, 400)
+
+        if file and allowed_file(file.filename):
+            github_data = []
+            try:
+
+                # Read the CSV file
+                reader = csv.DictReader(file.stream.read().decode('utf-8').splitlines())
+                for row in reader:
+                    github_data.append({
+                        's_id': row['s_id'],
+                        'project_id': int(row['project_id']),
+                        'commit_date': row['commit_date'],
+                        'message': row['message']
+                    })
+
+                # Insert data into the database
+                for data in github_data:
+                
+                    git_data = githubdata(s_id=data['s_id'], project_id=data['project_id'], commit_date=data['commit_date'], message=data['message'])
+                    db.session.add(git_data)
+
+                db.session.commit()
+                return jsonify({"message": "data added successfully"}, 201)
+
+            except Exception as e:
+                db.session.rollback()
+                return jsonify({"message": str(e)}, 500)
+        else:
+            return jsonify({"message": "Invalid file type"}, 400)

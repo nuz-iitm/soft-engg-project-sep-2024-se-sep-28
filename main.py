@@ -51,7 +51,8 @@ def create_app():
             InstructorUpdateQueryResource,
             MilestoneResource,
             MilestoneUpdateResource,
-            ProjectResource)
+            ProjectResource,
+            githubResource)
 
         # user registration endpoint
         api.add_resource(Register, "/api/register") # post
@@ -79,6 +80,8 @@ def create_app():
         api.add_resource(MilestoneUpdateResource, '/api/milestone/<int:m_id>') # put delete
         # project statement endpoint
         api.add_resource(ProjectResource, '/api/project_statement') # get put
+        # git hub data endpoint
+        api.add_resource(githubResource, '/api/git_data') # post (to add git hub dummy data)
 
     return app, api
 
