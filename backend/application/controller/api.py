@@ -164,6 +164,7 @@ class Register(Resource):
         else:
             return jsonify({"message": "User not part of the course"}, 500)
 
+# api for faq's
 class FaqResource(Resource):
 
     @jwt_required()
@@ -202,7 +203,7 @@ class FaqResource(Resource):
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
 
-
+# api for updating faq's
 class FaqUpdateResource(Resource):
 
     @jwt_required()
@@ -244,7 +245,7 @@ class FaqUpdateResource(Resource):
 class BulkUpload(Resource):
 
     @jwt_required()
-    @role_required('admin')
+    @role_required('admin', 'instructor')
     def get(self):
 
         """
@@ -252,7 +253,12 @@ class BulkUpload(Resource):
         """
         students = Students.query.all()
 
-        student_list = [{"s_id": student.s_id, "name": student.name, "email": student.email, 'project_id': student.project_id} for student in students]
+        student_list = [{"s_id": student.s_id, 
+                         "name": student.name, 
+                         "email": student.email, 
+                         'project_id': student.project_id,
+                         'is_registered': User.query.filter_by(email=student.email).first() is not None} 
+                         for student in students]
         return jsonify(student_list)
 
     @jwt_required()
@@ -296,27 +302,6 @@ class BulkUpload(Resource):
                 return jsonify({"message": str(e)}, 500)
         else:
             return jsonify({"message": "Invalid file type"}, 400)
-
-class StudentListResource(Resource):
-
-    @jwt_required()
-    @role_required('instructor')
-    def get(self):
-        project_id = get_project_id_instructor()
-
-        # Get all students in the current project
-        students = Students.query.filter_by(project_id=project_id).all()
-
-        # Prepare response
-        student_list = [
-            {
-                's_id': student.s_id,
-                'name': student.name,
-                'email': student.email,
-                'is_registered': User.query.filter_by(email=student.email).first() is not None
-            } for student in students]
-
-        return jsonify(student_list)
 
 
 class StudentUpdate(Resource):

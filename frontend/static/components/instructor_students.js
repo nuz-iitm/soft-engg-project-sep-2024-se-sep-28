@@ -17,6 +17,7 @@ export default {
             <div class="col-md-10 mb-5">
               <div class="card" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 6px 12px rgba(47, 79, 79, 0.2);">
                 <h2 class="text-center" style="font-size: 2rem; font-weight: bold; margin-bottom: 20px;">Students</h2>
+              </div>
             </div>
           </div>
 
@@ -29,7 +30,6 @@ export default {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -38,13 +38,13 @@ export default {
   data() {
     return {
       students: [
-        { s_id: 1, name: "Student 1", email: "", is_registered: "" },
+        { s_id: 1, name: "Student 1", email: "",project_id: 1, is_registered: "" },
       ],
     };
   },
   mounted() {
     const authToken = localStorage.getItem('auth-token');
-    fetch('http://127.0.0.1:5000/api/student_list', {
+    fetch('http://127.0.0.1:5000/api/student', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
