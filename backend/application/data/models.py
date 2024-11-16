@@ -85,5 +85,8 @@ class githubdata(db.Model):
     __tablename__ = 'githubdata'
     g_id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'))
+    s_id = db.Column(db.Integer, db.ForeignKey('students.s_id'))
+    commit_date = db.Column(db.String(80))
+    message = db.Column(db.String(500))
 
 
