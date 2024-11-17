@@ -44,6 +44,7 @@ export default {
                       <th>Name</th>
                       <th>Email</th>
                       <th>Project</th>
+                      <th>Account Made</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -55,6 +56,7 @@ export default {
                       <td v-else><input type="email" v-model="editedStudent.email" class="form-control"></td>
                       <td v-if="!student.editMode">{{ student.project_id }}</td>
                       <td v-else><input type="text" v-model="editedStudent.project_id" class="form-control"></td>
+                      <td>{{ student.is_registered }}</td>
                       <td>
                         <button v-if="!student.editMode" @click="editStudent(student)" class="btn btn-sm me-2" style="background-color: #28a745; color: white;">Edit</button>
                         <button v-if="student.editMode" @click="updateStudent(student.s_id, editedStudent)" class="btn btn-sm me-2" style="background-color: #6A9F8A; color: white;">Update</button>
@@ -77,8 +79,8 @@ export default {
       uploadingCSV: false,
       uploadProgress: 0,
       students: [
-        { s_id: 1, name: "John Doe", email: "john@example.com", project_id: "Project A", editMode: false },
-        { s_id: 2, name: "Jane Smith", email: "jane@example.com", project_id: "Project B", editMode: false },
+        { s_id: 1, name: "John Doe", email: "john@example.com", project_id: "Project A", 'is_registered': false, editMode: false },
+        { s_id: 2, name: "Jane Smith", email: "jane@example.com", project_id: "Project B", 'is_registered': true, editMode: false },
         // dummy students
       ],
       editedStudent: { s_id: null, name: '', email: '', project_id: '' }

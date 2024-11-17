@@ -20,5 +20,6 @@ class DevelopmentConfig(Config):
     WTF_CSRF_ENABLED = False
     SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Authentication-Token'
     JWT_SECRET_KEY = 'jwt_secret_key'
-    MAX_CONTENT_LENGTH = 2 * 1024 *1024  # 2mb limit
-    ALLOWED_EXTENSIONS = {'csv'}
+    MAX_CONTENT_LENGTH = 5 * 1024 *1024  #  5 mb limit
+    ALLOWED_EXTENSIONS = {'csv', 'pdf'}
+    UPLOAD_FOLDER = os.path.join(basedir, "/uploads")

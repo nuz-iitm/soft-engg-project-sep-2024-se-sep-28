@@ -59,6 +59,13 @@ class Milestones(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'))
     desc = db.Column(db.String(500))
     deadline = db.Column(db.String(120))
+    
+class MilestonesSub(db.Model):
+    __tablename__ = 'milestones_sub'
+    sub_id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'))
+    s_id = db.Column(db.Integer, db.ForeignKey('students.s_id'))
+    m_id = db.Column(db.Integer, db.ForeignKey('milestones.m_id'))
     sub_date = db.Column(db.String(120))
     submission = db.Column(db.String(255))
 

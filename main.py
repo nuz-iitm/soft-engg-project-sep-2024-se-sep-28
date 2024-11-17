@@ -13,7 +13,7 @@ import os
 # template directory for frontend DO NOT DELETE
 template_dir = os.path.abspath('frontend/templates')
 
-# statch directory for frontend DO NOT DELETE
+# static directory for frontend DO NOT DELETE
 static_dir = os.path.abspath('frontend/static')
 
 
@@ -51,8 +51,8 @@ def create_app():
             InstructorUpdateQueryResource,
             MilestoneResource,
             MilestoneUpdateResource,
+            MilestoneSubmissionResource,
             ProjectResource,
-            githubResource,
             DashBoardResource)
         
         # user registration endpoint
@@ -79,12 +79,11 @@ def create_app():
         # milestone endpoint
         api.add_resource(MilestoneResource, '/api/milestone') #get post
         api.add_resource(MilestoneUpdateResource, '/api/milestone/<int:m_id>') # put delete
+        api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>') # post
         # project statement endpoint
         api.add_resource(ProjectResource, '/api/project_statement') # get put
-        # git hub data endpoint
-        api.add_resource(githubResource, '/api/git_data') # post (to add git hub dummy data)
         # dashboard endpoints
-        api.add_resource(DashBoardResource, '/api/dash_top_studd')
+        api.add_resource(DashBoardResource, '/api/dash_top_studd') # get
 
     return app, api
 

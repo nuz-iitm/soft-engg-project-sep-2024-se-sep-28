@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, Role, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones, githubdata
+from ..data.models import User, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones, githubdata, MilestonesSub
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -8,8 +8,11 @@ import flask_login
 from functools import wraps
 from flask_login import current_user
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 import csv
+import datetime
+import os
 
 
 bcrypt = Bcrypt(app)
@@ -38,9 +41,13 @@ def role_required(*roles):
         return wrapped
     return wrapper
 
-def allowed_file(filename):
+def allowed_file_csv(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+           filename.rsplit('.', 1)[1].lower() in {'csv'}
+
+def allowed_file_pdf(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'pdf'}
 
 
 # to get project_id of current user(instructor)
@@ -241,7 +248,7 @@ class FaqUpdateResource(Resource):
         return jsonify({"message": "FAQ deleted successfully."}, 200)
     
 
-
+# api for student resources
 class BulkUpload(Resource):
 
     @jwt_required()
@@ -264,9 +271,9 @@ class BulkUpload(Resource):
     @jwt_required()
     @role_required('admin')
     def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('csvFile', type=FileStorage, location='files')
-        args = parser.parse_args()
+        # parser = reqparse.RequestParser()
+        # parser.add_argument('csvFile', type=FileStorage, location='files')
+        # args = parser.parse_args()
 
         if 'csvFile' not in request.files:
             return jsonify({"message": "No file part"}, 400)
@@ -276,7 +283,7 @@ class BulkUpload(Resource):
         if file.filename == '':
             return jsonify({"message": "No selected file"}, 400)
 
-        if file and allowed_file(file.filename):
+        if file and allowed_file_csv(file.filename):
             students_data = []
             try:
 
@@ -358,7 +365,8 @@ class StudentUpdate(Resource):
             db.session.delete(user)
         db.session.commit()
         return jsonify({"message": "Student deleted successfully."}, 200)
-    
+
+# api for instructor resources
 class InstructorResource(Resource):
 
     @jwt_required()
@@ -679,8 +687,6 @@ class MilestoneResource(Resource):
                 "m_id": milestone.m_id,
                 "desc": milestone.desc,
                 "deadline": milestone.deadline,
-                "sub_date": milestone.sub_date,
-                "submission": milestone.submission
             }
             for milestone in milestones
         ]
@@ -750,49 +756,44 @@ class MilestoneUpdateResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
-        
-class githubResource(Resource):
 
-    # for adding dummy git hub data to the githubdata model
-    def post(self):
+class MilestoneSubmissionResource(Resource):
 
-        if 'csvFile' not in request.files:
-            return jsonify({"message": "No file part"}, 400)
+    @jwt_required()
+    @role_required('student')
+    def post(self, m_id):
 
-        file = request.files['csvFile']
-        
+        file = request.files['pdfFile']
 
         if file.filename == '':
             return jsonify({"message": "No selected file"}, 400)
 
-        if file and allowed_file(file.filename):
-            github_data = []
+        if file and allowed_file_pdf(file.filename):
             try:
-
-                # Read the CSV file
-                reader = csv.DictReader(file.stream.read().decode('utf-8').splitlines())
-                for row in reader:
-                    github_data.append({
-                        's_id': row['s_id'],
-                        'project_id': int(row['project_id']),
-                        'commit_date': row['commit_date'],
-                        'message': row['message']
-                    })
-
-                # Insert data into the database
-                for data in github_data:
-                
-                    git_data = githubdata(s_id=data['s_id'], project_id=data['project_id'], commit_date=data['commit_date'], message=data['message'])
-                    db.session.add(git_data)
-
+                filename = secure_filename(file.filename)
+                y = datetime.datetime.now()
+                sub_date = y.strftime("%c") # submission date
+                f_n, f_ex = os.path.splitext(filename)
+                filename = sub_date+"_"+f_n+f_ex
+                basedir = os.path.abspath(os.path.dirname(__file__))
+                size = len(basedir)
+                uploads_dir = basedir[:size-22]+'uploads/'
+                print(uploads_dir)
+                file.save(os.path.join(uploads_dir, filename))
+                url = uploads_dir+filename
+                print(url)
+                project_id = get_project_id_student()
+                s_id = get_jwt_identity()['user_id']
+                milestone_sub = MilestonesSub(m_id=m_id, s_id=s_id, project_id=project_id,sub_date=sub_date, submission=url)
+                db.session.add(milestone_sub)
                 db.session.commit()
-                return jsonify({"message": "data added successfully"}, 201)
-
+                return jsonify({"message": "Submission successful"}, 201)
             except Exception as e:
                 db.session.rollback()
                 return jsonify({"message": str(e)}, 500)
         else:
             return jsonify({"message": "Invalid file type"}, 400)
+
         
 class DashBoardResource(Resource):
 
@@ -817,3 +818,4 @@ class DashBoardResource(Resource):
             } for student in top_students]
 
         return jsonify(dashboard_data)
+
