@@ -725,6 +725,15 @@ class MilestoneResource(Resource):
             return jsonify({"message": str(e)}, 500)
 
 class MilestoneStudentResource(Resource):
+
+    def submission_status(self, m_id, s_id):
+
+        status = MilestonesSub.query.filter_by(s_id=s_id, m_id=m_id).first()
+        if status:
+            return True
+        else:
+            return False
+
     @jwt_required()
     @role_required('student')
     def get(self):
@@ -744,10 +753,10 @@ class MilestoneStudentResource(Resource):
                 "m_id": milestone.m_id,
                 "desc": milestone.desc,
                 "deadline": milestone.deadline,
+                "status" : self.submission_status(milestone.m_id, s_id)
             }
             for milestone in milestones
         ]
-        print(milestone_list)
         return jsonify(milestone_list)
 
 class MilestoneUpdateResource(Resource):
