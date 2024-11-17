@@ -49,11 +49,13 @@ password: 12345678
 email: student10@abc.com
 password: 12345678
 
-Student email's that can be registered
+## Student email's that can be registered
 
 student11@abc.com
+student12@abc.com
+student13@abc.com
 
-instrutor email's that can be registered
+## instrutor email's that can be registered
 
 instructor2@abc.com
 instructor3@abc.com
