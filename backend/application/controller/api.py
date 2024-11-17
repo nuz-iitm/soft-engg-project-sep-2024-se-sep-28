@@ -67,6 +67,14 @@ def get_project_id_student():
     project_id = student.project_id
     return project_id
 
+def get_s_id():
+    user_id = get_jwt_identity()['user_id']
+    user = User.query.get(user_id)
+    email = user.email
+    student = Students.query.filter_by(email=email).first()
+    s_id = student.s_id
+    return s_id
+
 
 # api for login
 class Login(Resource):
@@ -181,7 +189,13 @@ class FaqResource(Resource):
         """
         Retrieve all FAQ entries 
         """
-        project_id = get_project_id_instructor()
+        user_id = get_jwt_identity()['user_id']
+        user = User.query.get(user_id)
+        if 'student' in [role.name for role in user.roles]:
+            project_id = get_project_id_student()
+        elif 'instructor' in [role.name for role in user.roles]:
+            project_id = get_project_id_instructor()
+        
         faqs = Faq.query.filter_by(project_id=project_id).all()
 
         
@@ -491,7 +505,7 @@ class StudentQueryResource(Resource):
         Allow students to create a new query.
         """
         data = request.json
-        s_id = get_jwt_identity()['user_id']  # Fetch the student ID from the JWT token
+        s_id = get_s_id()  # Fetch the student ID from the JWT token
         desc = data.get("desc")
         project_id = get_project_id_student()
 
@@ -665,19 +679,15 @@ class ProjectResource(Resource):
 class MilestoneResource(Resource):
 
     @jwt_required()
-    @role_required('student', 'instructor')
+    @role_required('instructor')
     def get(self):
         """
         Retrieve all milestones for the project id.
         """
-        user_id = get_jwt_identity()['user_id']
-        user = User.query.get(user_id)
 
         # get project_id for the user
-        if 'student' in [role.name for role in user.roles]:
-                project_id = get_project_id_student()
-        elif 'instructor' in [role.name for role in user.roles]:
-            project_id = get_project_id_instructor()
+
+        project_id = get_project_id_instructor()
         
         # get milestones for the project
         milestones = Milestones.query.filter_by(project_id=project_id).all()
@@ -714,6 +724,31 @@ class MilestoneResource(Resource):
             db.session.rollback()
             return jsonify({"message": str(e)}, 500)
 
+class MilestoneStudentResource(Resource):
+    @jwt_required()
+    @role_required('student')
+    def get(self):
+        """
+        Retrieve all milestones for the project id.
+        """
+        s_id = get_s_id()
+
+        # get project_id for the user
+        project_id = get_project_id_student()
+
+        # get milestones and check if they have been submitted
+        milestones = Milestones.query.filter_by(project_id=project_id).all()
+        
+        milestone_list = [
+            {
+                "m_id": milestone.m_id,
+                "desc": milestone.desc,
+                "deadline": milestone.deadline,
+            }
+            for milestone in milestones
+        ]
+        print(milestone_list)
+        return jsonify(milestone_list)
 
 class MilestoneUpdateResource(Resource):
 
@@ -758,23 +793,6 @@ class MilestoneUpdateResource(Resource):
             return jsonify({"message": str(e)}, 500)
 
 class MilestoneSubmissionResource(Resource):
-    @jwt_required()
-    @role_required('student')
-    def get(self, m_id):
-        """
-        Get the status of a milestone submission.
-        """
-        user_id = get_jwt_identity()['user_id']
-        project_id = get_project_id_student()
-
-        # Check if there is already a submission for this milestone by the current student
-        submission = MilestonesSub.query.filter_by(s_id=user_id, m_id=m_id, project_id=project_id).first()
-
-        if submission:
-            return jsonify({"status": "submitted", "submission_date": submission.sub_date}, 200)
-        else:
-            return jsonify({"status": "not_submitted"}, 404)
-
 
     @jwt_required()
     @role_required('student')
@@ -800,7 +818,7 @@ class MilestoneSubmissionResource(Resource):
                 url = uploads_dir+filename
                 print(url)
                 project_id = get_project_id_student()
-                s_id = get_jwt_identity()['user_id']
+                s_id = get_s_id()
                 milestone_sub = MilestonesSub(m_id=m_id, s_id=s_id, project_id=project_id,sub_date=sub_date, submission=url)
                 db.session.add(milestone_sub)
                 db.session.commit()

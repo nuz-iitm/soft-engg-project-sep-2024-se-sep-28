@@ -50,6 +50,7 @@ def create_app():
             InstructorQueryResource,
             InstructorUpdateQueryResource,
             MilestoneResource,
+            MilestoneStudentResource,
             MilestoneUpdateResource,
             MilestoneSubmissionResource,
             ProjectResource,
@@ -78,8 +79,9 @@ def create_app():
         api.add_resource(InstructorUpdateQueryResource, "/api/instructor_query/<int:q_id>")# get put delete
         # milestone endpoint
         api.add_resource(MilestoneResource, '/api/milestone') #get post
+        api.add_resource(MilestoneStudentResource, '/api/milestone_student') #get
         api.add_resource(MilestoneUpdateResource, '/api/milestone/<int:m_id>') # put delete
-        api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>') # get post
+        api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>') # post
         # project statement endpoint
         api.add_resource(ProjectResource, '/api/project_statement') # get put
         # dashboard endpoints

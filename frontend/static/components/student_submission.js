@@ -29,12 +29,12 @@ export default {
 
             <!-- File Upload -->
             <div class="mb-3">
-              <form @submit.prevent="uploadPDF(index)" v-if="!isMilestoneSubmitted(milestone.m_id)">
+              <form @submit.prevent="uploadPDF(index)" v-if="!milestone.submitted">
                 <input type="file" ref="pdfInput" accept=".pdf" class="form-control-file" style="max-width: 400px; margin: 0 auto;" />
                 <button type="submit" class="btn mt-4" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Upload PDF</button>
               </form>
-              <span v-if="isMilestoneSubmitted(milestone.m_id)" style="color: green; margin-top: 1rem;">
-                File already submitted on {{ milestone.submission_date }}.
+              <span v-if="milestone.submitted" style="color: green; margin-top: 1rem;">
+                File already submitted.
               </span>
             </div>
 
@@ -51,15 +51,15 @@ export default {
   data() {
     return {
       milestones: [
-        { m_id: null, desc: "Something Something?", deadline: "", submission_date: "" },
+        { m_id: null, desc: "Something Something?", deadline: ""},
       ],
       fileUploaded: [],
-      submittedMilestones: [], // Track submitted milestones
+      submission_date: '',
     };
   },
   mounted() {
     const authToken = localStorage.getItem('auth-token');
-    fetch('http://127.0.0.1:5000/api/milestone', {
+    fetch('http://127.0.0.1:5000/api/milestone_student', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -67,14 +67,12 @@ export default {
       }
     })
     .then(response => response.json())
-    .then(data => this.milestones = data.map(milestone => ({ ...milestone })));
+    .then(data => this.milestones = data.map(milestone => ({
+        ...milestone
+    })));
   },
   
   methods: {
-    isMilestoneSubmitted(m_id) {
-      return this.submittedMilestones.includes(m_id);
-    },
-    
     uploadPDF(index) {
       const formData = new FormData();
       const authToken = localStorage.getItem('auth-token');
@@ -97,7 +95,8 @@ export default {
         .then(data => {
           console.log(data);
           this.fileUploaded[index] = true;
-          this.submittedMilestones.push(this.milestones[index].m_id); // Add the milestone ID to submitted list
+          this.milestones[index].submitted = true; // Update the submitted status
+          this.milestones[index].submission_date = new Date().toISOString(); // Set submission date
         })
         .catch(error => console.error(error));
     },

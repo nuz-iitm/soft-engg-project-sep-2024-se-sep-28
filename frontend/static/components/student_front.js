@@ -68,7 +68,7 @@ export default {
         this.statement = data[0].statement;
         console.log(data);
       });
-    fetch('http://127.0.0.1:5000/api/milestone', {
+    fetch('http://127.0.0.1:5000/api/milestone_student', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
