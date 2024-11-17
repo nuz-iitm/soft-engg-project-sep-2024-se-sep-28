@@ -29,10 +29,13 @@ export default {
 
             <!-- File Upload -->
             <div class="mb-3">
-              <form @submit.prevent="uploadPDF(index)">
+              <form @submit.prevent="uploadPDF(index)" v-if="!isMilestoneSubmitted(milestone.m_id)">
                 <input type="file" ref="pdfInput" accept=".pdf" class="form-control-file" style="max-width: 400px; margin: 0 auto;" />
                 <button type="submit" class="btn mt-4" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Upload PDF</button>
               </form>
+              <span v-if="isMilestoneSubmitted(milestone.m_id)" style="color: green; margin-top: 1rem;">
+                File already submitted on {{ milestone.submission_date }}.
+              </span>
             </div>
 
             <!-- Confirmation Message -->
@@ -47,10 +50,11 @@ export default {
   
   data() {
     return {
-      milestones:[
-        { m_id: null, desc: "Something Something?", deadline: ""},
+      milestones: [
+        { m_id: null, desc: "Something Something?", deadline: "", submission_date: "" },
       ],
       fileUploaded: [],
+      submittedMilestones: [], // Track submitted milestones
     };
   },
   mounted() {
@@ -67,13 +71,16 @@ export default {
   },
   
   methods: {
+    isMilestoneSubmitted(m_id) {
+      return this.submittedMilestones.includes(m_id);
+    },
+    
     uploadPDF(index) {
       const formData = new FormData();
       const authToken = localStorage.getItem('auth-token');
     
       if (!this.$refs.pdfInput[index] || this.$refs.pdfInput[index].files.length === 0) {
         alert('Please select a PDF file');
-        this.fileUploaded[index] = false;
         return;
       }
     
@@ -90,6 +97,7 @@ export default {
         .then(data => {
           console.log(data);
           this.fileUploaded[index] = true;
+          this.submittedMilestones.push(this.milestones[index].m_id); // Add the milestone ID to submitted list
         })
         .catch(error => console.error(error));
     },

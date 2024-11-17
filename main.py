@@ -79,7 +79,7 @@ def create_app():
         # milestone endpoint
         api.add_resource(MilestoneResource, '/api/milestone') #get post
         api.add_resource(MilestoneUpdateResource, '/api/milestone/<int:m_id>') # put delete
-        api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>') # post
+        api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>') # get post
         # project statement endpoint
         api.add_resource(ProjectResource, '/api/project_statement') # get put
         # dashboard endpoints

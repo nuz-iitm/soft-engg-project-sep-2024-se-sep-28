@@ -758,6 +758,23 @@ class MilestoneUpdateResource(Resource):
             return jsonify({"message": str(e)}, 500)
 
 class MilestoneSubmissionResource(Resource):
+    @jwt_required()
+    @role_required('student')
+    def get(self, m_id):
+        """
+        Get the status of a milestone submission.
+        """
+        user_id = get_jwt_identity()['user_id']
+        project_id = get_project_id_student()
+
+        # Check if there is already a submission for this milestone by the current student
+        submission = MilestonesSub.query.filter_by(s_id=user_id, m_id=m_id, project_id=project_id).first()
+
+        if submission:
+            return jsonify({"status": "submitted", "submission_date": submission.sub_date}, 200)
+        else:
+            return jsonify({"status": "not_submitted"}, 404)
+
 
     @jwt_required()
     @role_required('student')
