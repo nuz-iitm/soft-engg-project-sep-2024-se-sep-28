@@ -5,7 +5,7 @@
 - Run by "python main.py"
 - App is made in such a way that, only those who are part of the program can registered.
 - For test purposes some email and password alongside their roles are written in "test_users.txt" file.
-- Many api can only be accesed by users with certain roles.
+- Many api can only be accesed by users with certain roles see yaml file for more details.
 
 
 
