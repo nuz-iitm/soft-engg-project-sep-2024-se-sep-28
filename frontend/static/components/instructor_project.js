@@ -32,7 +32,7 @@ export default {
                     <button @click="submitStatement()" class="btn btn-success mr-2" style="padding: 10px 20px; border-radius: 5px;">
                       Submit
                     </button>
-                    <button @click="cancelEdit()" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 5px;">
+                    <button @click="cancelStatementEdit()" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 5px;">
                       Cancel
                     </button>
                   </div>
@@ -171,7 +171,7 @@ export default {
         });
       }
     },
-    cancelEdit() {
+    cancelStatementEdit() {
       this.statementDisplayed = false;
     },
     addMilestone() {
