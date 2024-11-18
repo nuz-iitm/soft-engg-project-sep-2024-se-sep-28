@@ -119,6 +119,29 @@ export default {
       newMilestone: { desc: "", deadline: "" },
     };
   },
+  mounted() {
+    const authToken = localStorage.getItem('auth-token');
+    fetch('http://127.0.0.1:5000/api/project_statement', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+    })
+      .then(response => response.json())
+      .then(data => {
+        this.statement = data[0].statement;
+    });
+    fetch('http://127.0.0.1:5000/api/milestone', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        }
+    })
+      .then(response => response.json())
+      .then(data => this.milestones = data.map(milestone => ({ ...milestone, editMode: false })));
+  },
 
   methods: {
     editStatement() {
@@ -126,24 +149,80 @@ export default {
     },
     submitStatement() {
       if (this.statement.trim()) {
-        alert("Statement submitted!");
-        this.statementDisplayed = false;
+        const authToken = localStorage.getItem('auth-token');
+        fetch('http://127.0.0.1:5000/api/project_statement', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ statement: this.statement })
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data[0].message);
+          alert(data[0].message);
+          console.log("Submitted Statement:", this.statement);
+          this.statementDisplayed = false;  // Hide the form after submission
+        })
+        .catch(error => {
+          console.error('Error adding statement:', error);
+          alert('Failed to add statement');
+        });
       }
     },
     cancelEdit() {
       this.statementDisplayed = false;
     },
     addMilestone() {
-      if (this.newMilestone.desc.trim() && this.newMilestone.deadline) {
-        this.milestones.push({ ...this.newMilestone, editMode: false });
-        this.newMilestone = { desc: "", deadline: "" };
+      if (this.newMilestone.desc.trim() !== '' && this.newMilestone.deadline) {
+        const authToken = localStorage.getItem('auth-token');
+        fetch('http://127.0.0.1:5000/api/milestone', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify(this.newMilestone)
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data[0].message);
+          alert(data[0].message);
+          this.milestones.push({ ...this.newMilestone, editMode: false });
+          this.newMilestone = { desc: "", deadline: "" };
+        })
+        .catch(error => {
+          console.error('Error adding milestone:', error);
+          alert('Failed to add milestone');
+        });
+      } else {
+        alert('Please fill in all fields.');
       }
     },
     editMilestone(index) {
       this.milestones[index].editMode = true;
     },
-    saveEditedMilestone(index) {
-      this.milestones[index].editMode = false;
+    saveEditedMilestone(index,m_id) {
+      const authToken = localStorage.getItem('auth-token');
+      fetch(`http://127.0.0.1:5000/api/milestone/${m_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(this.milestones[index])
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data[0].message);
+        alert(data[0].message);
+        this.milestones[index].editMode = false;
+      })
+      .catch(error => {
+        console.error('Error updating milestone:', error);
+        alert('Failed to update milestone');
+      });
     },
     cancelEdit(milestone) {
       milestone.editMode = false;

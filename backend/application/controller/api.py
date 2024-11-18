@@ -670,7 +670,7 @@ class ProjectResource(Resource):
             project = Projects.query.get(project_id)
             project.statement = data.get("statement")
             db.session.commit()
-            return jsonify({"message": "Statement add successfully."}, 200)
+            return jsonify({"message": "Statement added successfully."}, 200)
         except Exception as e:
             print(str(e))
             return jsonify({"message": str(e)}, 500)

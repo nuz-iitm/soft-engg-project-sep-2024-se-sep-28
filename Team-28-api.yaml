@@ -1,0 +1,1160 @@
+openapi: 3.0.0
+info:
+  title: Flask-RESTful API for SE project
+  version: 1.0.0
+  description: Api used for project management
+servers:
+  - url: http://127.0.0.1:5000
+    description: Local host
+    
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    FAQ:
+      type: object
+      properties:
+        f_id:
+          type: integer
+        question:
+          type: string
+        answer:
+          type: string
+    StudentManagement:
+      type: object
+      properties:
+        s_id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        project_id:
+          type: integer
+        is_registered:
+          type: boolean
+    StudentManagementPut:
+      type: object
+      properties:
+        s_id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        project_id:
+          type: integer
+    InstructorManagement:
+      type: object
+      properties:
+        i_id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        project_id:
+          type: integer
+        designation:
+          type: string
+    Queries:
+      type: object
+      properties:
+        q_id:
+          type: integer
+        desc:
+          type: string
+        s_id:
+          type: integer
+        i_id:
+          type: integer
+        qdate:
+          type: string
+        response:
+          type: string
+        project_id:
+          type: integer
+    ProjectStatement:
+      type: object
+      properties:
+        statement:
+          type: string
+    Milestone:
+      type: object
+      properties:
+        m_id:
+          type: integer
+          example: 1
+        desc:
+          type: string
+          example: "Finalize project design"
+        deadline:
+          type: string
+          format: date
+          example: "2024-12-01"
+    MilestoneStudent:
+      type: object
+      properties:
+        m_id:
+          type: integer
+        desc:
+          type: string
+        deadline:
+          type: string
+          format: date
+        status:
+          type: boolean
+    Dashboard:
+      type: array
+      items:
+        type: object
+        properties:
+          s_id:
+            type: integer
+          name:
+            type: string
+          commits:
+            type: integer
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Login, Logout and Registration of Users
+  - name: FAQ
+    description: Operations related to FAQ entries for projects.
+  - name: StudentManagement
+    description: Operations related to student management.
+  - name: InstructorManagement
+    description: Operations related to instructor management.
+  - name: Queries
+    description: Operations related to queries.
+  - name: ProjectStatement
+    description: Operations related to project statements.
+  - name: Milestones
+    description: Operations related to project milestones.
+  - name: Dashboard
+    description: Operations for retrieving top-performing students based on commit data.
+
+paths:
+  /api/register:
+    post:
+      summary: Register a user (Role required - Student, Instructor)
+      description: The app is inclusive to the users enrolled in the program, therefore for now, Only users written in test_users.txt file can be registered. File also have some regitered user data (role, email, password)
+      tags:
+        - Login, Logout and Registration of Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum: [student, instructor]
+              required:
+                - email
+                - password
+                - role
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid input or user already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  
+  /api/login:
+    post:
+      summary: Log in a user
+      description: test_users.txt file have some regitered user data (role, email, password)
+      tags:
+        - Login, Logout and Registration of Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user_id:
+                    type: integer
+                  role_id:
+                    type: integer
+                  access_token:
+                    type: string
+        '400':
+          description: Invalid input or missing email/password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  
+  /api/logout:
+    post:
+      summary: Log out the current user
+      security:
+        - BearerAuth: []
+      tags:
+        - Login, Logout and Registration of Users
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+  /api/faq:
+    get:
+      operationId: getFAQs
+      security:
+        - BearerAuth: []
+      summary: Retrieve all FAQ entries for the current user's project (Role required -instructor and students)
+      description: Fetches a list of FAQs associated with the user's project.
+      tags:
+        - FAQ
+      responses:
+        '200':
+          description: List of FAQs for the project
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FAQ'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    post:
+      operationId: createFAQ
+      security:
+        - BearerAuth: []
+      summary: Create a new FAQ entry for the current user's project (Role required - instructor only)
+      description: Adds a new FAQ entry to the user's project.
+      tags:
+        - FAQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                  example: "What is the project deadline?"
+                answer:
+                  type: string
+                  example: "The project deadline is 2024-12-01."
+      responses:
+        '201':
+          description: FAQ created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/faq/{f_id}:
+    parameters:
+      - in: path
+        name: f_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the FAQ entry
+    
+    put:
+      operationId: updateFAQ
+      security:
+        - BearerAuth: []
+      summary: Update an existing FAQ entry by ID (Role required - instructor)
+      description: Modifies an existing FAQ entry based on the FAQ ID.
+      tags:
+        - FAQ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                  example: "Updated question?"
+                answer:
+                  type: string
+                  example: "Updated answer."
+      responses:
+        '200':
+          description: FAQ updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: FAQ not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    delete:
+      operationId: deleteFAQ
+      security:
+        - BearerAuth: []
+      summary: Delete an existing FAQ entry by ID (Role required - instructor)
+      description: Removes an existing FAQ entry based on the FAQ ID.
+      tags:
+        - FAQ
+      responses:
+        '200':
+          description: FAQ deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: FAQ not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/student:
+    post:
+      summary: Bulk upload students from a CSV file (Role required - admin)
+      tags:
+        - StudentManagement
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                csvFile:
+                  type: string
+                  format: binary
+              required:
+                - csvFile
+      responses:
+        '201':
+          description: Students added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid input or missing CSV file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+                
+    get:
+      summary: Retrieve all students in the programm (Role required - admin and instructor)
+      description: Retrieve all students part of the program
+      tags:
+        - StudentManagement
+      responses:
+        '200':
+          description: List of all students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentManagement'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/student/{s_id}:
+    parameters:
+      - in: path
+        name: s_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the student
+    
+    put:
+      operationId: updateStudent
+      summary: Update an existing student by ID (Role required - admin)
+      tags:
+        - StudentManagement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentManagementPut'
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    delete:
+      operationId: deleteStudent
+      summary: Delete an existing student by ID (Role required - admin )
+      tags:
+        - StudentManagement
+      responses:
+        '200':
+          description: Student deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/instructor:
+    get:
+      summary: Retrieve all instructor entries (Role required - admin )
+      tags:
+        - InstructorManagement
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of all instructors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InstructorManagement'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    post:
+      summary: Add a new instructor (Role required - admin)
+      tags:
+        - InstructorManagement
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructorManagement'
+      responses:
+        '201':
+          description: Instructor added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/instructor/{i_id}:
+    parameters:
+      - in: path
+        name: i_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the instructor
+    
+    put:
+      summary: Update an existing instructor by ID (Role required - admin)
+      tags:
+        - InstructorManagement
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructorManagement'
+      responses:
+        '200':
+          description: Instructor updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Instructor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    delete:
+      summary: Delete an existing instructor by ID (Role required - admin)
+      tags:
+        - InstructorManagement
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Instructor deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Instructor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/student_query:
+    get:
+      summary: Retrieve all queries for a student (Role required - student)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of queries for the student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Queries'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    post:
+      summary: Create a new query for a student (Role required - student)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                desc:
+                  type: string
+                  description: Description of the query
+              required:
+                - desc
+      responses:
+        '201':
+          description: Query created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid input or missing description
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/student_query/{q_id}:
+    parameters:
+      - in: path
+        name: q_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the query
+    
+    get:
+      summary: Retrieve a specific query by ID for a student (Role required - student)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Query details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queries'
+        '404':
+          description: Query not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/instructor_query:
+    get:
+      summary: Retrieve all queries for an instructor (Role required - instructor)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of queries for the instructor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Queries'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/instructor_query/{q_id}:
+    parameters:
+      - in: path
+        name: q_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the query
+    
+    get:
+      summary: Retrieve a specific query by ID for an instructor (Role required - instructor)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Query details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Queries'
+        '404':
+          description: Query not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    put:
+      summary: Update a query's response by ID for an instructor (Role required - instructor)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                response:
+                  type: string
+                  description: Response to the query
+              required:
+                - response
+      responses:
+        '200':
+          description: Query response updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Query not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    delete:
+      summary: Delete a query by ID for an instructor (Role required - instructor)
+      tags:
+        - Queries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Query deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Query not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/project_statement:
+    get:
+      summary: Get project statement (Role required - instructor, student)
+      description: Retrieve the project statement for the current project. Accessible to both instructors and students.
+      operationId: getProjectStatement
+      security:
+        - BearerAuth: []
+      tags:
+        - ProjectStatement
+      responses:
+        '200':
+          description: Project statement retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Unauthorized - JWT token missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Error message.
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+    put:
+      summary: Update project statement (Role required - instructor)
+      description: Update the project statement for the current project. Only accessible to instructors.
+      operationId: updateProjectStatement
+      security:
+        - BearerAuth: []
+      tags:
+        - ProjectStatement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectStatement'
+      responses:
+        '200':
+          description: Statement added successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Bad request - invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/milestone:
+    get:
+      summary: Retrieve all milestones (Role required - instructor)
+      description: Fetch all milestones for the current project.
+      operationId: getMilestones
+      security:
+        - BearerAuth: []
+      tags:
+        - Milestones
+      responses:
+        '200':
+          description: List of milestones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Milestone'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+    post:
+      summary: Create a new milestone (Role required - instructor)
+      description: Add a new milestone to the current project.
+      operationId: createMilestone
+      security:
+        - BearerAuth: []
+      tags:
+        - Milestones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Milestone'
+      responses:
+        '201':
+          description: Milestone created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/milestone/{m_id}:
+    parameters:
+      - name: m_id
+        in: path
+        required: true
+        description: Milestone ID
+        schema:
+          type: integer
+    put:
+      summary: Update a milestone (Role required - instructor)
+      description: Modify details of an existing milestone by ID.
+      operationId: updateMilestone
+      security:
+        - BearerAuth: []
+      tags:
+        - Milestones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Milestone'
+      responses:
+        '200':
+          description: Milestone updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Milestone not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+    delete:
+      summary: Delete a milestone (Role required - instructor)
+      description: Remove an existing milestone by ID.
+      operationId: deleteMilestone
+      security:
+        - BearerAuth: []
+      tags:
+        - Milestones
+      responses:
+        '200':
+          description: Milestone deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '404':
+          description: Milestone not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/milestone_student:
+    get:
+      summary: Retrieve all milestones for the project for a specific student (Role required - student)
+      description: Fetches all milestones associated with the current project and checks if they have been submitted by the specified student.
+      tags:
+        - Milestones
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of milestones for the project and their submission status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MilestoneStudent'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+  /api/milestone_sub/{m_id}:
+    parameters:
+      - name: m_id
+        in: path
+        required: true
+        description: Milestone ID
+        schema:
+          type: integer
+    post:
+      summary: Submit a milestone for the project (Role required - student)
+      description: Allows a student to submit a milestone for their current project.
+      tags:
+        - Milestones
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                pdfFile:
+                  type: string
+                  format: binary
+              required:
+                - pdfFile
+      responses:
+        '201':
+          description: Milestone submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid input or file type not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /api/dash_top_studd:
+    get:
+      summary: Retrieve top students based on commits (Role required - instructor)
+      description: Fetches the top 3 students with the most commits in the current project for an instructor.
+      tags:
+        - Dashboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of top students and their commit counts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      
+
+  
