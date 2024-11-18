@@ -29,11 +29,11 @@ export default {
 
             <!-- File Upload -->
             <div class="mb-3">
-              <form @submit.prevent="uploadPDF(index)" v-if="!milestone.submitted">
+              <form @submit.prevent="uploadPDF(index)" v-if="!milestone.status">
                 <input type="file" ref="pdfInput" accept=".pdf" class="form-control-file" style="max-width: 400px; margin: 0 auto;" />
                 <button type="submit" class="btn mt-4" style="background-color: #D3E9D7; color: #2F4F4F; border-radius: 5px; padding: 0.5rem 1rem;">Upload PDF</button>
               </form>
-              <span v-if="milestone.submitted" style="color: green; margin-top: 1rem;">
+              <span v-if="milestone.status" style="color: green; margin-top: 1rem;">
                 File already submitted.
               </span>
             </div>
@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       milestones: [
-        { m_id: null, desc: "Something Something?", deadline: ""},
+        { m_id: null, desc: "Something Something?", deadline: "", status: null},
       ],
       fileUploaded: [],
       submission_date: '',
