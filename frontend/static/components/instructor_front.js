@@ -25,6 +25,7 @@ export default {
               <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
                 <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Visualizations</h2>
                 <p>View insights on student and project performance.</p>
+                <canvas id="commitsChart" style="max-width: 100%; height: 300px;"></canvas>
               </div>
             </div>
           </div>
@@ -58,26 +59,75 @@ export default {
   data() {
     return {
       topStudents: [
-        { s_id: 1, name: "student A", commits: 100 },
-        { id: 2, name: "student B", commits: 80 },
-        { id: 3, name: "student C", commits: 60 }
+        { id: 1, name: "Student A", commits: 100 },
+        { id: 2, name: "Student B", commits: 80 },
+        { id: 3, name: "Student C", commits: 60 }
       ]
     };
   },
+
   mounted() {
     const authToken = localStorage.getItem('auth-token');
     fetch('http://127.0.0.1:5000/api/dash_top_studd', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`
+      },
     })
       .then(response => response.json())
-      .then(data => this.topStudents = data.map(student => ({ ...student})));
+      .then(data => {
+        this.topStudents = data.map(student => ({ ...student }));
+        this.renderChart();
+      });
+  },
+
+  methods: {
+    renderChart() {
+      const ctx = document.getElementById("commitsChart").getContext("2d");
+      new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: this.topStudents.map(student => student.name),
+          datasets: [
+            {
+              label: "Commits",
+              data: this.topStudents.map(student => student.commits),
+              backgroundColor: "rgba(47, 79, 79, 0.7)",
+              borderColor: "rgba(47, 79, 79, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Number of Commits",
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Students",
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: "top",
+            },
+          },
+        },
+      });
+    },
   },
 
   components: {
-    side_bar_inst
-  }
+    side_bar_inst,
+  },
 };
