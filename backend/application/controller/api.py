@@ -86,7 +86,7 @@ class Login(Resource):
 
         # Basic validation
         if not email or not password:
-            return jsonify({"message": "Email and password are required"}), 400
+            return jsonify({"message": "Email and password are required"})
 
         # Check if user exists
         user = User.query.filter_by(email=email).first()
@@ -101,9 +101,9 @@ class Login(Resource):
 
              # Create JWT access token with both user_id and fs_uniquifier
             access_token = create_access_token(identity={"user_id": user.id, "fs_uniquifier": user.fs_uniquifier})
-            return jsonify({"message": "Login successful", "user_id": user.id, "role_id": role_id, "access_token": access_token}, 200)
+            return jsonify({"message": "Login successful", "user_id": user.id, "role_id": role_id, "access_token": access_token})
 
-        return jsonify({"message": "Invalid email or password"}, 401)
+        return jsonify({"message": "Invalid email or password"})
     
 # api for logout
 class Logout(Resource):
@@ -161,7 +161,7 @@ class Register(Resource):
             # Check if user already exists
             user = User.query.filter_by(email=email).first()
             if user:
-                return jsonify({"message": "User already exists"}, 400)
+                return jsonify({"message": "User already exists"})
 
             # Create new user
             hashed_password = self.generate_password_hash(password)
@@ -172,12 +172,12 @@ class Register(Resource):
                 user_datastore.add_role_to_user(user, role_name)
                 db.session.commit()
 
-                return jsonify({"message": "User registered successfully"}, 201)
+                return jsonify({"message": "User registered successfully"})
             except Exception as e:
                 db.session.rollback()
-                return jsonify({"message": "Error registering user", "error": str(e)}, 500)
+                return jsonify({"message": "Error registering user", "error": str(e)})
         else:
-            return jsonify({"message": "User not part of the course"}, 500)
+            return jsonify({"message": "User not part of the course"})
 
 # api for faq's
 class FaqResource(Resource):

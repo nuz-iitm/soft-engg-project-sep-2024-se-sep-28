@@ -1,8 +1,39 @@
 openapi: 3.0.0
 info:
-  title: Flask-RESTful API for SE project
+  title: API for Student Project Mangement Portal
   version: 1.0.0
-  description: Api used for project management
+  description: |
+    ### 1. Register, login, logout
+      - **Register**: Allows new users to register with their email, password, and role (student or instructor). The system will verify the user's credentials against a predefined list of enrolled Students and instructors uploaded by admin (see test_users.txt).
+      - **Login**: Authenticates existing users using their email and password. Upon successful authentication, it returns an access token that can be used for subsequent API requests.
+      - **Logout**: Invalidates the current user's session by logging them out.
+
+    ### 2. FAQ Management
+      - Allows instructors to manage frequently asked questions (FAQs) associated with their project, and allows student to see them.
+
+    ### 3. Student Management
+      - Provides functionalities to add enrolled students list from csv file.
+      - Also provides functionalities to update, and delete student records.
+      - Only accessible to the admin role.
+
+    ### 5. Instructor Management
+      - Allows administrators to manage instructor records.
+      - Only accessible to the admin role.
+
+    ### 6. Queries Management
+      - Students can create queries for instructors, and instructors can view and respond to those queries.
+      
+    ### 7. Project Statements
+      - Instructors can update project statements, which are visible to both students and instructors.
+      
+    ### 8. Milestones Management
+      - Allows instructors to manage milestones for the current project, including creating new milestones, updating existing ones, and deleting them.
+      - Also allows students to view the milestones and deadlines and submit their pdf files.
+  
+    ### 9. Dashboard
+      - Provides a summary of top-performing students based on their commit activities.
+
+
 servers:
   - url: http://127.0.0.1:5000
     description: Local host
@@ -147,7 +178,7 @@ tags:
 paths:
   /api/register:
     post:
-      summary: Register a user (Role required - Student, Instructor)
+      summary: Register a user
       description: The app is inclusive to the users enrolled in the program, therefore for now, Only users written in test_users.txt file can be registered. File also have some regitered user data (role, email, password)
       tags:
         - Login, Logout and Registration of Users
@@ -311,7 +342,7 @@ paths:
       operationId: createFAQ
       security:
         - BearerAuth: []
-      summary: Create a new FAQ entry for the current user's project (Role required - instructor only)
+      summary: Create a new FAQ entry for the current user's project (Role required - instructor)
       description: Adds a new FAQ entry to the user's project.
       tags:
         - FAQ
