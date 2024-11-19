@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from ..data.database import db
-from ..data.models import User, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones, githubdata, MilestonesSub
+from ..data.models import User, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones, githubdata, MilestonesSub, Events
 from ..security import user_datastore
 from flask import current_app as app, jsonify, request
 from flask_bcrypt import Bcrypt
@@ -862,4 +862,11 @@ class DashBoardResource(Resource):
             } for student in top_students]
 
         return jsonify(dashboard_data)
+    
+class EventResource(Resource):
+
+    @jwt_required()
+    @role_required('instructor', 'student')
+    def get(self):
+        pass
 
