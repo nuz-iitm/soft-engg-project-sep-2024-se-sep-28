@@ -58,22 +58,23 @@ export default {
         return response.json();
       })
       .then(data => {
-        console.log(data[0].message);
-        console.log(data[0].role_id)
-        alert(data[0].message);  // Display success message
-        localStorage.setItem('auth-token', data[0].access_token);  // Save token
+        console.log(data)
+        console.log(data.message);
+        console.log(data.role_id)
+        alert(data.message);  // Display success message
+        localStorage.setItem('auth-token', data.access_token);  // Save token
 
-        if(data[0].role_id === 2){       // check role
+        if(data.role_id === 2){       // check role
           this.$router.push("/instructor_front");
-        }else if(data[0].role_id === 3){
+        }else if(data.role_id === 3){
           this.$router.push("/student_front");
-        }else if(data[0].role_id === 1){
+        }else if(data.role_id === 1){
           this.$router.push("/admin_front");
         }
       })
       .catch(error => {
         console.error("There was an error!", error);
-        this.errors.push("Login failed: " + error.message);
+        // this.errors.push("Login failed: " + error.message);
       });
     }
   }

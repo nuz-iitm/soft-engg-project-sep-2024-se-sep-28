@@ -1,4 +1,5 @@
 import side_bar_stdd from "./side_bar_stdd.js";
+import student_cal from "./student_cal.js";
 
 export default {
   template: `
@@ -17,7 +18,7 @@ export default {
             <p style="margin-bottom: 1rem;">Use this space to track important academic deadlines and events.</p>
             <div id="calendar" style="text-align: center; padding: 20px; background-color: rgba(255, 255, 255, 0.1); border-radius: 5px;">
               <!-- Replace this placeholder with an actual calendar component if available -->
-              <p style="color: #2F4F4F;">[Calendar Placeholder]</p>
+              <student_cal></student_cal>
             </div>
           </div>
 
@@ -43,6 +44,7 @@ export default {
 
   components: {
     side_bar_stdd,
+    student_cal,
   },
   data(){
     return{
