@@ -655,7 +655,7 @@ class ProjectResource(Resource):
 
             return jsonify({
                 "statement": project.statement
-            }, 200)
+            })
         except Exception as e:
             return jsonify({"message": str(e)})
         
