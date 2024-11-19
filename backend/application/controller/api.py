@@ -866,7 +866,21 @@ class DashBoardResource(Resource):
 class EventResource(Resource):
 
     @jwt_required()
-    @role_required('instructor', 'student')
+    @role_required('instructor')
     def get(self):
-        pass
+        project_id = get_project_id_instructor()
+
+        # get events for a project_id
+        events = Events.query.filter_by(project_id=project_id).all()
+        
+        events_list = [
+            {
+                "e_id": event.m_id,
+                "title": event.title,
+                "start_date": event.start_data,
+            }
+            for event in events
+        ]
+        return jsonify(events_list)
+
 
