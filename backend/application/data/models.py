@@ -100,7 +100,7 @@ class Events(db.Model):
     __tablename__ = 'events'
     e_id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.project_id'))
-    description = db.Column(db.String(500))
-    event_date = db.Column(db.String(120))
+    title = db.Column(db.String(500))
+    start_date = db.Column(db.String(120))
 
 

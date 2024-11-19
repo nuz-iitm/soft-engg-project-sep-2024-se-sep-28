@@ -1,4 +1,5 @@
 import side_bar_inst from "./side_bar_inst.js";
+import instructor_cal from "./instructor_cal.js";
 
 export default {
   template: `
@@ -12,11 +13,11 @@ export default {
         <!-- Main Content -->
         <div class="col-md-9" style="padding: 40px;">
           <div class="row">
-            <!-- Dashboard Card -->
+            <!-- Calendar Card -->
             <div class="col-md-6 mb-4">
               <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
                 <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Dashboard</h2>
-                <p>Manage all your project tracking in one place.</p>
+                <instructor_cal></instructor_cal>
               </div>
             </div>
 
@@ -129,5 +130,6 @@ export default {
 
   components: {
     side_bar_inst,
+    instructor_cal
   },
 };
