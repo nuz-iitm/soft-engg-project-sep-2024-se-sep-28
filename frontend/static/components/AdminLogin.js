@@ -55,12 +55,12 @@ export default {
         return response.json();
       })
       .then(data => {
-        console.log(data[0].message);
-        console.log(data[0].role_id)
+        console.log(data.message);
+        console.log(data.role_id)
         // alert(data[0].message);  // Display success message
-        localStorage.setItem('auth-token', data[0].access_token);  // Save token
+        localStorage.setItem('auth-token', data.access_token);  // Save token
 
-        if(data[0].role_id === 1){       // check role
+        if(data.role_id === 1){       // check role
           this.$router.push("/admin_front");
         }
         else{

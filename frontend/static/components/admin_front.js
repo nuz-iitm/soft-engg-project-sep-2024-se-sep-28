@@ -118,8 +118,8 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data[0].message);
-        alert(data[0].message);
+        console.log(data.message);
+        alert(data.message);
         if (index !== -1) {
           this.$set(this.students[index], 'name', editedStudent.name);
           this.$set(this.students[index], 'email', editedStudent.email);
@@ -148,8 +148,8 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data[0].message);
-        alert(data[0].message);
+        console.log(data.message);
+        alert(data.message);
 
         // Remove the student from the local state
         if (index !== -1) {

@@ -130,7 +130,7 @@ export default {
     })
       .then(response => response.json())
       .then(data => {
-        this.statement = data[0].statement;
+        this.statement = data.statement;
     });
     fetch('http://127.0.0.1:5000/api/milestone', {
         method: 'GET',
@@ -160,8 +160,8 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-          console.log(data[0].message);
-          alert(data[0].message);
+          console.log(data.message);
+          alert(data.message);
           console.log("Submitted Statement:", this.statement);
           this.statementDisplayed = false;  // Hide the form after submission
         })
@@ -187,8 +187,8 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-          console.log(data[0].message);
-          alert(data[0].message);
+          console.log(data.message);
+          alert(data.message);
           this.milestones.push({ ...this.newMilestone, editMode: false });
           this.newMilestone = { desc: "", deadline: "" };
         })
@@ -215,8 +215,8 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data[0].message);
-        alert(data[0].message);
+        console.log(data.message);
+        alert(data.message);
         this.milestones[index].editMode = false;
       })
       .catch(error => {

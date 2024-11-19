@@ -91,7 +91,7 @@ export default {
           return response.json();
         })
         .then(data => {
-          const queries = data[0];
+          const queries = data;
           this.studentQuestions = queries.map(query => ({
             q_id: query.q_id,
             desc: query.desc,
@@ -123,8 +123,8 @@ export default {
         })
           .then(response => response.json())
           .then(data => {
-            console.log(data[0].message);
-            alert(data[0].message);
+            console.log(data.message);
+            alert(data.message);
           })
           .catch(error => {
             console.error('Error submitting response:', error);

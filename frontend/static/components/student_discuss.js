@@ -109,8 +109,8 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-          console.log(data[0].message);
-          alert(data[0].message);
+          console.log(data.message);
+          alert(data.message);
           // Add the new question to the local state
           this.questions.push({ question: this.newQuestion.desc, response: '' });
           this.newQuestion.desc= '';

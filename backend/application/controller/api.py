@@ -116,10 +116,10 @@ class Logout(Resource):
             # Log out the user using Flask-Login (this uses the user_id)
             flask_login.logout_user()
 
-            return jsonify({"message": "Logout successful"}, 200)
+            return jsonify({"message": "Logout successful"})
 
         except Exception as e:
-            return jsonify({"message": "Error during logout", "error": str(e)}, 500)
+            return jsonify({"message": "Error during logout", "error": str(e)})
 
 
 # api for registration
@@ -219,10 +219,10 @@ class FaqResource(Resource):
             )
             db.session.add(new_faq)
             db.session.commit()
-            return jsonify({"message": "FAQ created successfully."}, 201)
+            return jsonify({"message": "FAQ created successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
 # api for updating faq's
 class FaqUpdateResource(Resource):
@@ -237,16 +237,16 @@ class FaqUpdateResource(Resource):
             updated_faq = Faq.query.filter_by(f_id=f_id).first()
 
             if not updated_faq:
-                return jsonify({"message": "FAQ not found"}), 404
+                return jsonify({"message": "FAQ not found"})
 
             updated_faq.question = data.get('question', updated_faq.question)
             updated_faq.answer = data.get('answer', updated_faq.answer)
 
             db.session.commit()
-            return jsonify({"message": "FAQ updated successfully."}, 200)
+            return jsonify({"message": "FAQ updated successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
     @jwt_required()
     @role_required('instructor')
@@ -255,11 +255,11 @@ class FaqUpdateResource(Resource):
         faq = Faq.query.filter_by(f_id=f_id).first()
 
         if not faq:
-            return jsonify({"message": "FAQ not found"}, 404)
+            return jsonify({"message": "FAQ not found"})
 
         db.session.delete(faq)
         db.session.commit()
-        return jsonify({"message": "FAQ deleted successfully."}, 200)
+        return jsonify({"message": "FAQ deleted successfully."})
     
 
 # api for student resources
@@ -290,12 +290,12 @@ class BulkUpload(Resource):
         # args = parser.parse_args()
 
         if 'csvFile' not in request.files:
-            return jsonify({"message": "No file part"}, 400)
+            return jsonify({"message": "No file part"})
 
         file = request.files['csvFile']
 
         if file.filename == '':
-            return jsonify({"message": "No selected file"}, 400)
+            return jsonify({"message": "No selected file"})
 
         if file and allowed_file_csv(file.filename):
             students_data = []
@@ -316,13 +316,13 @@ class BulkUpload(Resource):
                     db.session.add(new_student)
 
                 db.session.commit()
-                return jsonify({"message": "Students added successfully"}, 201)
+                return jsonify({"message": "Students added successfully"})
 
             except Exception as e:
                 db.session.rollback()
-                return jsonify({"message": str(e)}, 500)
+                return jsonify({"message": str(e)})
         else:
-            return jsonify({"message": "Invalid file type"}, 400)
+            return jsonify({"message": "Invalid file type"})
 
 
 class StudentUpdate(Resource):
@@ -337,7 +337,7 @@ class StudentUpdate(Resource):
             updated_student = Students.query.filter_by(s_id=s_id).first()
 
             if not updated_student:
-                return jsonify({"message": "student not found"}), 404
+                return jsonify({"message": "student not found"})
             
             old_email = updated_student.email
             new_email = data.get('email')
@@ -355,10 +355,10 @@ class StudentUpdate(Resource):
                 user.email = new_email
                 db.session.commit()
 
-            return jsonify({"message": "Student updated successfully."}, 200)
+            return jsonify({"message": "Student updated successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
     
     @jwt_required()
@@ -372,13 +372,13 @@ class StudentUpdate(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not student:
-            return jsonify({"message": "Student not found"}, 404)
+            return jsonify({"message": "Student not found"})
 
         db.session.delete(student)
         if user:
             db.session.delete(user)
         db.session.commit()
-        return jsonify({"message": "Student deleted successfully."}, 200)
+        return jsonify({"message": "Student deleted successfully."})
 
 # api for instructor resources
 class InstructorResource(Resource):
@@ -415,10 +415,10 @@ class InstructorResource(Resource):
             )
             db.session.add(new_instructor)
             db.session.commit()
-            return jsonify({"message": "Instructor added successfully."}, 201)
+            return jsonify({"message": "Instructor added successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
 class InstructorUpdateResource(Resource):
 
@@ -432,7 +432,7 @@ class InstructorUpdateResource(Resource):
             updated_instructor = Instructors.query.filter_by(i_id=i_id).first()
 
             if not updated_instructor:
-                return jsonify({"message": "instructor not found"}, 404)
+                return jsonify({"message": "instructor not found"})
             
             old_email = updated_instructor.email
             new_email = data.get('email')
@@ -448,10 +448,10 @@ class InstructorUpdateResource(Resource):
                 user.email = new_email
                 db.session.commit()
 
-            return jsonify({"message": "Instructor updated successfully."}, 200)
+            return jsonify({"message": "Instructor updated successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
     
     @jwt_required()
     @role_required('admin')
@@ -464,13 +464,13 @@ class InstructorUpdateResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not instructor:
-            return jsonify({"message": "Instructor not found"}, 404)
+            return jsonify({"message": "Instructor not found"})
 
         db.session.delete(instructor)
         if user:
             db.session.delete(user)
         db.session.commit()
-        return jsonify({"message": "Instructor deleted successfully."}, 200)
+        return jsonify({"message": "Instructor deleted successfully."})
 
 
 
@@ -510,16 +510,16 @@ class StudentQueryResource(Resource):
         project_id = get_project_id_student()
 
         if not desc:
-            return jsonify({"message": "Description is required"}, 400)
+            return jsonify({"message": "Description is required"})
 
         new_query = Queries(desc=desc, s_id=s_id, project_id=project_id)
         try:
             db.session.add(new_query)
             db.session.commit()
-            return jsonify({"status": "success", "message": "Query created successfully."}, 201)
+            return jsonify({"status": "success", "message": "Query created successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"status": "error", "message": str(e)}, 500)
+            return jsonify({"status": "error", "message": str(e)})
 
 class StudentQueryUpdateResource(Resource):
 
@@ -544,7 +544,7 @@ class StudentQueryUpdateResource(Resource):
                 "project_id": query.project_id
             }, 200)
         else:
-            return jsonify({"message": "Query not found"}, 404)
+            return jsonify({"message": "Query not found"})
 
 class InstructorQueryResource(Resource):
 
@@ -567,7 +567,7 @@ class InstructorQueryResource(Resource):
             }
             for query in queries
         ]
-        return jsonify(query_list, 200)
+        return jsonify(query_list)
 
 
         
@@ -582,7 +582,7 @@ class InstructorUpdateQueryResource(Resource):
         if q_id:
             query = Queries.query.get(q_id)
             if not query:
-                return jsonify({"message": "Query not found"}), 404
+                return jsonify({"message": "Query not found"})
             return jsonify({
                 "q_id": query.q_id,
                 "desc": query.desc,
@@ -593,7 +593,7 @@ class InstructorUpdateQueryResource(Resource):
                 "project_id": query.project_id
             }, 200)
         else:
-            return jsonify({"message": "query not found"}, 404)
+            return jsonify({"message": "query not found"})
 
     @jwt_required()
     @role_required('instructor')
@@ -606,16 +606,16 @@ class InstructorUpdateQueryResource(Resource):
 
         query = Queries.query.get(q_id)
         if not query:
-            return jsonify({"message": "Query not found"}, 404)
+            return jsonify({"message": "Query not found"})
 
         query.response = response
 
         try:
             db.session.commit()
-            return jsonify({"status": "success", "message": "Responce submitted successfully."}, 200)
+            return jsonify({"status": "success", "message": "Responce submitted successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"status": "error", "message": str(e)}, 500)
+            return jsonify({"status": "error", "message": str(e)})
 
     @jwt_required()
     @role_required('instructor')
@@ -625,14 +625,14 @@ class InstructorUpdateQueryResource(Resource):
         """
         query = Queries.query.get(q_id)
         if not query:
-            return jsonify({"message": "Query not found"}, 404)
+            return jsonify({"message": "Query not found"})
         try:
             db.session.delete(query)
             db.session.commit()
-            return jsonify({"message": "Query deleted successfully."}, 200)
+            return jsonify({"message": "Query deleted successfully."})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"status": "error", "message": str(e)}, 500)
+            return jsonify({"status": "error", "message": str(e)})
 
 
 class ProjectResource(Resource):
@@ -657,7 +657,7 @@ class ProjectResource(Resource):
                 "statement": project.statement
             }, 200)
         except Exception as e:
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
         
     
     @jwt_required()
@@ -670,10 +670,10 @@ class ProjectResource(Resource):
             project = Projects.query.get(project_id)
             project.statement = data.get("statement")
             db.session.commit()
-            return jsonify({"message": "Statement added successfully."}, 200)
+            return jsonify({"message": "Statement added successfully."})
         except Exception as e:
             print(str(e))
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
 
 class MilestoneResource(Resource):
@@ -719,10 +719,10 @@ class MilestoneResource(Resource):
         try:
             db.session.add(new_milestone)
             db.session.commit()
-            return jsonify({"message": "Milestone created successfully"}, 201)
+            return jsonify({"message": "Milestone created successfully"})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
 class MilestoneStudentResource(Resource):
 
@@ -771,17 +771,17 @@ class MilestoneUpdateResource(Resource):
    
         milestone = Milestones.query.get(m_id)
         if not milestone:
-            return jsonify({"message": "Milestone not found"}, 404)
+            return jsonify({"message": "Milestone not found"})
 
         milestone.desc = data.get("desc")
         milestone.deadline = data.get("deadline")
 
         try:
             db.session.commit()
-            return jsonify({"message": "Milestone updated successfully"}, 200)
+            return jsonify({"message": "Milestone updated successfully"})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
     @jwt_required()
     @role_required('instructor')
@@ -791,15 +791,15 @@ class MilestoneUpdateResource(Resource):
         """
         milestone = Milestones.query.get(m_id)
         if not milestone:
-            return jsonify({"message": "Milestone not found"}, 404)
+            return jsonify({"message": "Milestone not found"})
 
         try:
             db.session.delete(milestone)
             db.session.commit()
-            return jsonify({"message": "Milestone deleted successfully"}, 200)
+            return jsonify({"message": "Milestone deleted successfully"})
         except Exception as e:
             db.session.rollback()
-            return jsonify({"message": str(e)}, 500)
+            return jsonify({"message": str(e)})
 
 class MilestoneSubmissionResource(Resource):
 
@@ -810,7 +810,7 @@ class MilestoneSubmissionResource(Resource):
         file = request.files['pdfFile']
 
         if file.filename == '':
-            return jsonify({"message": "No selected file"}, 400)
+            return jsonify({"message": "No selected file"})
 
         if file and allowed_file_pdf(file.filename):
             try:
@@ -831,12 +831,12 @@ class MilestoneSubmissionResource(Resource):
                 milestone_sub = MilestonesSub(m_id=m_id, s_id=s_id, project_id=project_id,sub_date=sub_date, submission=url)
                 db.session.add(milestone_sub)
                 db.session.commit()
-                return jsonify({"message": "Submission successful"}, 201)
+                return jsonify({"message": "Submission successful"})
             except Exception as e:
                 db.session.rollback()
-                return jsonify({"message": str(e)}, 500)
+                return jsonify({"message": str(e)})
         else:
-            return jsonify({"message": "Invalid file type"}, 400)
+            return jsonify({"message": "Invalid file type"})
 
         
 class DashBoardResource(Resource):

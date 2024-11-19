@@ -115,8 +115,8 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-          console.log(data[0].message);
-          alert(data[0].message);
+          console.log(data.message);
+          alert(data.message);
           // Add the new instructor to the local state
           this.instructors.push({ ...this.newInstructor, editMode: false });
           this.showAddForm = false;
@@ -142,8 +142,8 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-          console.log(data[0].message);
-          alert(data[0].message);
+          console.log(data.message);
+          alert(data.message);
           if (index !== -1) {
             this.$set(this.instructors[index], 'name', editedInstructor.name);
             this.$set(this.instructors[index], 'email', editedInstructor.email);
@@ -180,8 +180,8 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-        console.log(data[0].message);
-        alert(data[0].message);
+        console.log(data.message);
+        alert(data.message);
         // remove instructor from local state
         if (index !== -1) {
           this.instructors.splice(index, 1);

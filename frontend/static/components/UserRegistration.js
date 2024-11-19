@@ -109,7 +109,7 @@ export default {
         return response.json();
       })
       .then(data => {
-        alert(data[0].message);  // Show success message
+        alert(data.message);  // Show success message
         this.$router.push('/login');  // Redirect to login page
       })
       .catch(error => {

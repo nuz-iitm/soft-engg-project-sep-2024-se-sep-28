@@ -87,7 +87,7 @@ export default {
         })
         .then(response => response.json())
         .then(data => {
-          alert(data[0].message);
+          alert(data.message);
           this.newFaq = { question: "", answer: "" };
           this.faqs.push({ ...data.faq, editMode: false });
         });
@@ -132,7 +132,7 @@ export default {
       })
       .then(response => response.json())
       .then(data => {
-        alert(data[0].message);
+        alert(data.message);
         this.faqs = this.faqs.filter(faq => faq.f_id !== f_id);
       })
       .catch(error => {

@@ -67,7 +67,7 @@ export default {
     })
       .then(response => response.json())
       .then(data => {
-        this.statement = data[0].statement;
+        this.statement = data.statement;
         console.log(data);
       });
     fetch('http://127.0.0.1:5000/api/milestone_student', {
