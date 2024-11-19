@@ -16,7 +16,7 @@ export default {
             <!-- Calendar Card -->
             <div class="col-md-6 mb-4">
               <div class="card text-center" style="background-color: rgba(255, 255, 255, 0.9); color: #2F4F4F; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(47, 79, 79, 0.2);">
-                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Dashboard</h2>
+                <h2 class="mt-3" style="font-size: 2rem; font-weight: bold;">Calendar</h2>
                 <instructor_cal></instructor_cal>
               </div>
             </div>
