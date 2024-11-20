@@ -52,7 +52,8 @@ export default {
         body: JSON.stringify(this.userCredentials)
       })
       .then(response => {
-        if (!response.ok) {
+        if (response.status_code===400) {
+          this.loginMessage = response.message;
           throw new Error('Invalid credentials');
         }
         return response.json();

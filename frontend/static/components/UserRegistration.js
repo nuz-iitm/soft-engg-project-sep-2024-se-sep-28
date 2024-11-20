@@ -100,8 +100,11 @@ export default {
         body: JSON.stringify(this.cred)
       })
       .then(response => {
-        if (response.status === 409) {
+        console.log(response);
+        if (response.status === 400) {
+          alert(response.statusText);
           throw new Error('User already exists');
+
         }
         if (!response.ok) {
           throw new Error('Registration failed');

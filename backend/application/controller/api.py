@@ -86,7 +86,9 @@ class Login(Resource):
 
         # Basic validation
         if not email or not password:
-            return jsonify({"message": "Email and password are required"})
+            response = jsonify({"message": "Email and password are required"})
+            response.status_code = 400
+            return response
 
         # Check if user exists
         user = User.query.filter_by(email=email).first()
@@ -103,7 +105,9 @@ class Login(Resource):
             access_token = create_access_token(identity={"user_id": user.id, "fs_uniquifier": user.fs_uniquifier})
             return jsonify({"message": "Login successful", "user_id": user.id, "role_id": role_id, "access_token": access_token})
 
-        return jsonify({"message": "Invalid email or password"})
+        response = jsonify({"message": "Invalid email or password"})
+        response.status_code = 400
+        return response
     
 # api for logout
 class Logout(Resource):
@@ -153,7 +157,7 @@ class Register(Resource):
 
         # Basic validation
         if not email or not password:
-            return jsonify({"message": "Email and password are required"}, 400)
+            return jsonify({"message": "Email and password are required"})
 
 
         
@@ -161,7 +165,9 @@ class Register(Resource):
             # Check if user already exists
             user = User.query.filter_by(email=email).first()
             if user:
-                return jsonify({"message": "User already exists","status_code": 400})
+                response = jsonify({"message": "User already exists"})
+                response.status_code = 400
+                return response
 
             # Create new user
             hashed_password = self.generate_password_hash(password)

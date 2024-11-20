@@ -8,6 +8,7 @@ from backend.application.security import user_datastore
 from flask_security import Security
 from flask_restful import Resource
 import flask_login
+import pprint
 
 
 @pytest.fixture(scope='module')
@@ -72,20 +73,22 @@ class TestRegisterResource:
         }
         response = client.post("/api/register", json=data)
         print("Response status code:", response.status_code)
-        print("Response content:", response.data)
+        
         assert response.status_code == 200
         assert response.json["message"] == "User registered successfully"
     
     def test_register_user_with_existing_email(self, client):
         data = {
-            "email": "student11@abc.com",
+            "email": "student10@abc.com",
             "password": "12345678",
             "role": "student"
         }
-        client.post("/api/register", json=data)  # Register the user first
+        client.post("/api/register", json=data)  
         response = client.post("/api/register", json=data)
-        assert response.status_code == 200
+        print("Response content:", response.data)
         assert response.json["message"] == "User already exists"
+        assert response.status_code == 400
+        
 
 
 class TestLoginResource:
@@ -107,6 +110,8 @@ class TestLoginResource:
         response = client.post('/api/login', json=data)
         print("Response content:", response.data)
         assert json.loads(response.data)['message'] == 'Invalid email or password'
+        assert response.status_code == 400
+
 
 if __name__ == '__main__':
     pytest.main(['test.py'])
