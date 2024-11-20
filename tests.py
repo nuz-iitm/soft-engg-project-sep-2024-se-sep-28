@@ -111,6 +111,17 @@ class TestLoginResource:
         print("Response content:", response.data)
         assert json.loads(response.data)['message'] == 'Invalid email or password'
         assert response.status_code == 400
+    
+    def test_login_empty_inputs(self, client):
+
+        response = client.post("/api/login", json={
+            "email": "",
+            "password": ""
+        })
+        print("Empty Login Response:", response.json)
+        assert response.status_code == 400
+        assert response.json["message"] == "Email and password are required"    
+
 
 
 if __name__ == '__main__':

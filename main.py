@@ -55,7 +55,8 @@ def create_app():
             MilestoneSubmissionResource,
             ProjectResource,
             DashBoardResource,
-            EventResource)
+            EventResource,
+            EventStudentResource)
         
         # user registration endpoint
         api.add_resource(Register, "/api/register") # post
@@ -89,6 +90,8 @@ def create_app():
         api.add_resource(DashBoardResource, '/api/dash_top_studd') # get
         # events endpoints
         api.add_resource(EventResource, '/api/events') # get
+        # student event endpoint
+        api.add_resource(EventStudentResource, '/api/student_events') # get
 
     return app, api
 

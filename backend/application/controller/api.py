@@ -881,12 +881,49 @@ class EventResource(Resource):
         
         events_list = [
             {
-                "e_id": event.m_id,
+                "e_id": event.e_id,
                 "title": event.title,
-                "start_date": event.start_data,
+                "start": event.start_date,
             }
             for event in events
         ]
         return jsonify(events_list)
+    
 
+    @jwt_required()
+    @role_required('instructor')
+    def post(self):
+        data = request.json
 
+        new_event = Events(
+            project_id=get_project_id_instructor(),
+            title =data.get("title"),
+            start_date=data.get("start")
+        )
+
+        try:
+            db.session.add(new_event)
+            db.session.commit()
+            return jsonify({"message": "Event created successfully"})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": str(e)})
+
+class EventStudentResource(Resource):
+
+    @jwt_required()
+    @role_required('student')
+    def get(self):
+        project_id = get_project_id_student()
+
+        # get events for a project_id
+        events = Events.query.filter_by(project_id=project_id).all()
+        
+        events_list = [
+            {
+                "title": event.title,
+                "start": event.start_date,
+            }
+            for event in events
+        ]
+        return jsonify(events_list)
