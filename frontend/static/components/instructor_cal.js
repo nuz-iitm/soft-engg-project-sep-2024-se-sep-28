@@ -7,12 +7,7 @@ export default {
     name: 'instructor_cal',
     data() {
         return {
-            newEvent: {
-                title: '',
-                start: ''
-            },
-            selectedDate: null,
-            showForm: false
+
         }
     },
     mounted() {

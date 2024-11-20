@@ -161,7 +161,7 @@ class Register(Resource):
             # Check if user already exists
             user = User.query.filter_by(email=email).first()
             if user:
-                return jsonify({"message": "User already exists"})
+                return jsonify({"message": "User already exists","status_code": 400})
 
             # Create new user
             hashed_password = self.generate_password_hash(password)
