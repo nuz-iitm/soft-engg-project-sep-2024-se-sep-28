@@ -122,6 +122,33 @@ class TestLoginResource:
         assert response.status_code == 400
         assert response.json["message"] == "Email and password are required"    
 
+class TestLogoutResource:
+    def test_logout_user(self, client):
+        # Step 1: Login to get the access token
+        login_data = {
+            "email": "student1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post('/api/login', json=login_data)
+        assert login_response.status_code == 200
+        
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        access_token = login_json['access_token']
+        print("Access Token for Logout Test:", access_token)
+        
+        
+        headers = {
+            "Authorization": f"Bearer {access_token}"
+        }
+        logout_response = client.post('/api/logout', headers=headers)
+        
+        
+        print("Logout Response:", logout_response.data)
+        assert logout_response.status_code == 200
+        logout_json = json.loads(logout_response.data)
+        assert logout_json['message'] == "Logout successful"
 
 
 if __name__ == '__main__':

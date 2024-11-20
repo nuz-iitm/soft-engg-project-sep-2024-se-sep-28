@@ -243,7 +243,9 @@ class FaqUpdateResource(Resource):
             updated_faq = Faq.query.filter_by(f_id=f_id).first()
 
             if not updated_faq:
-                return jsonify({"message": "FAQ not found"})
+                response = jsonify({"message": "FAQ not found"})
+                response.status_code = 400
+                return response
 
             updated_faq.question = data.get('question', updated_faq.question)
             updated_faq.answer = data.get('answer', updated_faq.answer)
@@ -261,7 +263,9 @@ class FaqUpdateResource(Resource):
         faq = Faq.query.filter_by(f_id=f_id).first()
 
         if not faq:
-            return jsonify({"message": "FAQ not found"})
+            response = jsonify({"message": "FAQ not found"})
+            response.status_code = 400
+            return response
 
         db.session.delete(faq)
         db.session.commit()
