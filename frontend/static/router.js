@@ -16,6 +16,7 @@ import student_front from './components/student_front.js'
 import student_discuss from './components/student_discuss.js';
 import student_submission from './components/student_submission.js'
 import student_faq from './components/student_faq.js'
+import instructor_students2 from './components/instructor_students2.js';
 
 const routes = [
   { 
@@ -119,6 +120,12 @@ const routes = [
     component:student_faq,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/instructors_students2',
+    name: 'instructors_students2',
+    component:instructor_students2,
+    meta: { requiresAuth: true}
+  }
   // Other routes can be added here, e.g., UserRegistration
 ];
 

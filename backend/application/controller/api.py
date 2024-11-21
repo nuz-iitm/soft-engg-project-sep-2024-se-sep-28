@@ -734,15 +734,17 @@ class MilestoneResource(Resource):
             db.session.rollback()
             return jsonify({"message": str(e)})
 
-class MilestoneStudentResource(Resource):
 
-    def submission_status(self, m_id, s_id):
+def submission_status(m_id, s_id):
 
         status = MilestonesSub.query.filter_by(s_id=s_id, m_id=m_id).first()
         if status:
             return True
         else:
             return False
+
+
+class MilestoneStudentResource(Resource):
 
     @jwt_required()
     @role_required('student')
@@ -763,7 +765,7 @@ class MilestoneStudentResource(Resource):
                 "m_id": milestone.m_id,
                 "desc": milestone.desc,
                 "deadline": milestone.deadline,
-                "status" : self.submission_status(milestone.m_id, s_id)
+                "status" : submission_status(milestone.m_id, s_id)
             }
             for milestone in milestones
         ]
@@ -820,7 +822,9 @@ class MilestoneSubmissionResource(Resource):
         file = request.files['pdfFile']
 
         if file.filename == '':
-            return jsonify({"message": "No selected file"})
+            response = jsonify({"message": "No selected file"})
+            response.status_code = 400
+            return response
 
         if file and allowed_file_pdf(file.filename):
             try:
@@ -931,3 +935,46 @@ class EventStudentResource(Resource):
             for event in events
         ]
         return jsonify(events_list)
+    
+class StudentResourceAll(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def get(self, s_id):
+        student = Students.query.filter_by(s_id=s_id).first()
+
+        if not student:
+            response = jsonify({"message": "Student not found"})
+            response.status_code = 400
+            return response
+        
+        if User.query.filter_by(email=student.email).first():
+            project_id = student.project_id
+            milestones = Milestones.query.filter_by(project_id=project_id).all()
+
+            milestone_status_list = []
+
+            for milestone in milestones:
+                milestone_status_list.append({
+                    "m_id": milestone.m_id,
+                    "desc": milestone.desc,
+                    "deadline": milestone.deadline,
+                    "status": submission_status(milestone.m_id, s_id)
+                })
+             # Get github data for the student's commits
+            commits = db.session.query(githubdata.g_id, githubdata.commit_date, githubdata.message).filter_by(s_id=s_id, project_id=project_id).all()
+            commit_list = [{"g_id": c[0], "commit_date": c[1], "message": c[2]} for c in commits]
+
+            return jsonify({
+                "student": {
+                    "s_id": student.s_id,
+                    "name": student.name,
+                    "email": student.email
+                },
+                "milestone_status_list": milestone_status_list,
+                "commit_list": commit_list
+            })
+        else:
+            response = jsonify({"message": "Student has not made an account"})
+            response.status_code = 400
+            return response
