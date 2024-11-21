@@ -1,0 +1,61 @@
+
+## admin
+email: abcde@abcd.com
+password: 12345678
+
+
+## student
+email: student1@abc.com
+password: 12345678
+
+
+## instructor
+email: instructor1@abc.com
+password: 12345678
+
+## student
+email: student2@abc.com
+password: 12345678
+
+## student
+email: student3@abc.com
+password: 12345678
+
+## student
+email: student4@abc.com
+password: 12345678
+
+## student
+email: student5@abc.com
+password: 12345678
+
+## student
+email: student6@abc.com
+password: 12345678
+
+## student
+email: student7@abc.com
+password: 12345678
+
+## student
+email: student8@abc.com
+password: 12345678
+
+## student
+email: student9@abc.com
+password: 12345678
+
+## student
+email: student10@abc.com
+password: 12345678
+
+## Student email's that can be registered
+
+student11@abc.com
+student12@abc.com
+student13@abc.com
+
+## instrutor email's that can be registered
+
+instructor2@abc.com
+instructor3@abc.com
