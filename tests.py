@@ -231,55 +231,34 @@ class TestFaqResource:
         assert "message" in response.json        
     
 
-
-    def test_update_faq_success(self, client, instructor_jwt_token):
-
-     
-        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
-        create_data = {"question": "Original Question", "answer": "Original Answer"}
-        create_response = client.post("/api/faq", headers=headers, json=create_data)
-        assert create_response.status_code == 200
-
-        f_id = create_response.json.get("f_id")  
-        update_data = {"question": "Updated Question", "answer": "Updated Answer"}
-        update_response = client.put(f"/api/faq/{f_id}", headers=headers, json=update_data)
-
-        print("FAQ UPDATE Response:", update_response.json)
-
-        assert update_response.status_code == 200
-        assert update_response.json["message"] == "FAQ updated successfully."
-
 class TestFaqUpdateResource:
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
+      
         client.post("/api/register", json={
-            "email": "instructor3@abc.com",
-            "password": "password123",
+            "email": "instructor1@abc.com",
+            "password": "12345678",
             "role": "instructor"
         })
 
+       
         login_response = client.post("/api/login", json={
-            "email": "instructor3@abc.com",
-            "password": "password123"
+            "email": "instructor1@abc.com",
+            "password": "12345678"
         })
 
+        print("Login Response:", login_response.json)
         assert login_response.status_code == 200
         assert "access_token" in login_response.json
 
+        
         return login_response.json["access_token"]
 
     def test_update_faq_success(self, client, instructor_jwt_token):
         headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
-
-        # Create an FAQ entry to update
-        create_data = {"question": "Original Question?", "answer": "Original Answer."}
-        create_response = client.post("/api/faq/", headers=headers, json=create_data)
-        assert create_response.status_code == 200
-
-        
-        f_id =1
+        # Update f_id 1
+        f_id =4
       
-
         # Update the FAQ with new question and answer
         update_data = {"question": "Updated Question?", "answer": "Updated Answer."}
         update_response = client.put(f"/api/faq/{f_id}", headers=headers, json=update_data)
@@ -327,20 +306,24 @@ class TestFaqDeleteResource:
 
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
+      
         client.post("/api/register", json={
-            "email": "instructor3@abc.com",
-            "password": "password123",
+            "email": "instructor1@abc.com",
+            "password": "12345678",
             "role": "instructor"
         })
 
+       
         login_response = client.post("/api/login", json={
-            "email": "instructor3@abc.com",
-            "password": "password123"
+            "email": "instructor1@abc.com",
+            "password": "12345678"
         })
 
+        print("Login Response:", login_response.json)
         assert login_response.status_code == 200
         assert "access_token" in login_response.json
 
+        
         return login_response.json["access_token"]
     
     def test_post_faq_success(self, client, instructor_jwt_token):

@@ -157,7 +157,9 @@ class Register(Resource):
 
         # Basic validation
         if not email or not password:
-            return jsonify({"message": "Email and password are required"})
+            response = jsonify({"message": "Email and password are required"})
+            response.status_code = 400
+            return response
 
 
         
@@ -213,6 +215,16 @@ class FaqResource(Resource):
     def post(self):
         
         data = request.json
+
+        question = data.get("question")
+        answer = data.get("answer")
+
+        # Basic validation
+        if not question or not answer:
+            response = jsonify({"message": "Question and answer are required"})
+            response.status_code = 400
+            return response
+
 
         # getting current user project_id
         project_id = get_project_id_instructor()
