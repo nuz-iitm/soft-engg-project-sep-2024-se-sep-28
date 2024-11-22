@@ -8,7 +8,20 @@ from backend.application.security import user_datastore
 from flask_security import Security
 from flask_restful import Resource
 import flask_login
-import pprint
+
+'''INDEX FOR THE FILE
+
+ 0. TESTCASE SET UP DATA
+ 1. REGISTER LOGIN AND LOGOUT
+ 2. FAQ
+ 3. MILESTONE
+ 
+ 
+ 
+ 
+ '''
+
+
 
 
 @pytest.fixture(scope='module')
@@ -62,7 +75,7 @@ def app():
 def client(app):
     with app.test_client() as client:
         yield client
-
+#################################LOGIN AND REGISTER#####################################
 # Test cases for Register Resource
 class TestRegisterResource:
     def test_register_user_success(self, client):
@@ -124,7 +137,7 @@ class TestLoginResource:
 
 class TestLogoutResource:
     def test_logout_user(self, client):
-        # Step 1: Login to get the access token
+       
         login_data = {
             "email": "student1@abc.com",
             "password": "12345678"
@@ -149,6 +162,296 @@ class TestLogoutResource:
         assert logout_response.status_code == 200
         logout_json = json.loads(logout_response.data)
         assert logout_json['message'] == "Logout successful"
+
+####################################FAQ#################################
+
+class TestFaqResource:
+
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+      
+        client.post("/api/register", json={
+            "email": "instructor1@abc.com",
+            "password": "12345678",
+            "role": "instructor"
+        })
+
+       
+        login_response = client.post("/api/login", json={
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        })
+
+        print("Login Response:", login_response.json)
+        assert login_response.status_code == 200
+        assert "access_token" in login_response.json
+
+        
+        return login_response.json["access_token"]
+
+    def test_get_faqs_success(self, client, instructor_jwt_token):
+        
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.get("/api/faq", headers=headers)
+
+        
+        print("FAQ GET Response:", response.json)
+
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)  # Ensure response is a list of FAQs
+
+    def test_post_faq_success(self, client, instructor_jwt_token):
+
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "question": "What is 42?",
+            "answer": "It is the answer to life, the universe, and everything."
+        }
+        response = client.post("/api/faq", headers=headers, json=data)
+
+   
+        print("FAQ POST Response:", response.json)
+
+    
+        assert response.status_code == 200
+        assert response.json["message"] == "FAQ created successfully."
+
+    def test_post_faq_missing_data(self, client, instructor_jwt_token):
+      
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {"question": ""}  
+        response = client.post("/api/faq", headers=headers, json=data)
+
+        
+        print("FAQ POST Missing Data Response:", response.json)
+
+   
+        assert response.status_code == 400  
+        assert "message" in response.json        
+    
+
+
+    def test_update_faq_success(self, client, instructor_jwt_token):
+
+     
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        create_data = {"question": "Original Question", "answer": "Original Answer"}
+        create_response = client.post("/api/faq", headers=headers, json=create_data)
+        assert create_response.status_code == 200
+
+        f_id = create_response.json.get("f_id")  
+        update_data = {"question": "Updated Question", "answer": "Updated Answer"}
+        update_response = client.put(f"/api/faq/{f_id}", headers=headers, json=update_data)
+
+        print("FAQ UPDATE Response:", update_response.json)
+
+        assert update_response.status_code == 200
+        assert update_response.json["message"] == "FAQ updated successfully."
+
+class TestFaqUpdateResource:
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        client.post("/api/register", json={
+            "email": "instructor3@abc.com",
+            "password": "password123",
+            "role": "instructor"
+        })
+
+        login_response = client.post("/api/login", json={
+            "email": "instructor3@abc.com",
+            "password": "password123"
+        })
+
+        assert login_response.status_code == 200
+        assert "access_token" in login_response.json
+
+        return login_response.json["access_token"]
+
+    def test_update_faq_success(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+
+        # Create an FAQ entry to update
+        create_data = {"question": "Original Question?", "answer": "Original Answer."}
+        create_response = client.post("/api/faq/", headers=headers, json=create_data)
+        assert create_response.status_code == 200
+
+        
+        f_id =1
+      
+
+        # Update the FAQ with new question and answer
+        update_data = {"question": "Updated Question?", "answer": "Updated Answer."}
+        update_response = client.put(f"/api/faq/{f_id}", headers=headers, json=update_data)
+
+        print("FAQ UPDATE Response:", update_response.json)
+
+        assert update_response.status_code == 200
+        assert update_response.json["message"] == "FAQ updated successfully."
+
+    def test_update_faq_not_found(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        update_data = {"question": "Does not matter", "answer": "Will not work"}
+        f_id = 99999  
+
+        response = client.put(f"/api/faq/{f_id}", headers=headers, json=update_data)
+
+        print("FAQ NOT FOUND UPDATE Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "FAQ not found"
+
+    def test_update_faq_invalid_data(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+
+        # Create an FAQ entry to update
+        create_data = {"question": "Original Question?", "answer": "Original Answer."}
+        create_response = client.post("/api/faq", headers=headers, json=create_data)
+        assert create_response.status_code == 200
+
+        f_id = 1
+        
+
+        # Attempt to update with invalid data
+        update_data = {"question": "", "answer": ""}  # Invalid inpu
+        update_response = client.put(f"/api/faq/{f_id}", headers=headers, json=update_data)
+
+        print("FAQ INVALID DATA UPDATE Response:", update_response.json)
+
+        assert update_response.status_code == 400 
+        assert "message" in update_response.json
+
+
+class TestFaqDeleteResource:
+
+
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        client.post("/api/register", json={
+            "email": "instructor3@abc.com",
+            "password": "password123",
+            "role": "instructor"
+        })
+
+        login_response = client.post("/api/login", json={
+            "email": "instructor3@abc.com",
+            "password": "password123"
+        })
+
+        assert login_response.status_code == 200
+        assert "access_token" in login_response.json
+
+        return login_response.json["access_token"]
+    
+    def test_post_faq_success(self, client, instructor_jwt_token):
+
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "question": "What is 42?",
+            "answer": "It is the answer to life, the universe, and everything."
+        }
+        response = client.post("/api/faq", headers=headers, json=data)
+
+   
+        print("FAQ POST Response:", response.json)
+
+    
+        assert response.status_code == 200
+        assert response.json["message"] == "FAQ created successfully."
+
+    def test_delete_faq_success(self, client, instructor_jwt_token):
+        
+        faq_id = 1  
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.delete(f"/api/faq/{faq_id}", headers=headers)
+
+        print("FAQ DELETE Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "FAQ deleted successfully."
+
+    def test_delete_faq_not_found(self, client, instructor_jwt_token):
+        # Attempt to delete a non-existent FAQ
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.delete("/api/faq/99999", headers=headers)  # Non-existent ID
+
+        print("FAQ DELETE NOT FOUND Response:", response.json)
+
+        assert response.status_code == 400  # Bad Request
+        assert response.json["message"] == "FAQ not found"
+
+    def test_delete_faq_unauthorized(self, client):
+        
+        response = client.delete("/api/faq/1")  
+        
+
+        assert response.status_code == 401  
+
+        
+
+############################################################################################
+
+class TestMilestoneResource:
+
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        
+
+
+        login_response = client.post("/api/login", json={
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        })
+
+        assert login_response.status_code == 200
+        assert "access_token" in login_response.json
+
+        return login_response.json["access_token"]
+
+    def test_get_milestones_success(self, client, instructor_jwt_token):
+      
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.get("/api/milestone", headers=headers)
+
+        print("GET Milestones Response:", response.json)
+
+       
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)  
+        if response.json:  
+            assert "m_id" in response.json[0]
+            assert "desc" in response.json[0]
+            assert "deadline" in response.json[0]
+
+    def test_post_milestone_success(self, client, instructor_jwt_token):
+        # Make a POST request to create a new milestone
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "desc": "Complete Module 1",
+            "deadline": "2024-12-31"
+        }
+        response = client.post("/api/milestone", headers=headers, json=data)
+
+        print("POST Milestone Response:", response.json)
+
+        # Assertions
+        assert response.status_code == 200
+
+    def test_post_milestone_missing_data(self, client, instructor_jwt_token):
+        
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {"desc": ""}  
+        response = client.post("/api/milestone", headers=headers, json=data)
+
+        print("POST Milestone Missing Data Response:", response.json)
+
+        
+        assert response.status_code == 200  
+        assert "message" in response.json
+
+
+
 
 
 if __name__ == '__main__':
