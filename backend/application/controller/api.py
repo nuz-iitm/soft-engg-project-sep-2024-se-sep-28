@@ -731,11 +731,18 @@ class MilestoneResource(Resource):
         Create a new milestone.
         """
         data = request.json
+        desc = data.get('desc')
+        deadline = data.get('deadline')
+        # Basic validation
+        if not desc or not deadline:
+            response = jsonify({"message": "desc and deadline are required"})
+            response.status_code = 400
+            return response
 
         new_milestone = Milestones(
             project_id=get_project_id_instructor(),
-            desc=data.get("desc"),
-            deadline=data.get("deadline")
+            desc=desc,
+            deadline=deadline
         )
 
         try:
@@ -748,7 +755,6 @@ class MilestoneResource(Resource):
 
 
 def submission_status(m_id, s_id):
-
         status = MilestonesSub.query.filter_by(s_id=s_id, m_id=m_id).first()
         if status:
             return True

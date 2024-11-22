@@ -169,14 +169,7 @@ class TestFaqResource:
 
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
-      
-        client.post("/api/register", json={
-            "email": "instructor1@abc.com",
-            "password": "12345678",
-            "role": "instructor"
-        })
 
-       
         login_response = client.post("/api/login", json={
             "email": "instructor1@abc.com",
             "password": "12345678"
@@ -234,14 +227,7 @@ class TestFaqResource:
 class TestFaqUpdateResource:
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
-      
-        client.post("/api/register", json={
-            "email": "instructor1@abc.com",
-            "password": "12345678",
-            "role": "instructor"
-        })
 
-       
         login_response = client.post("/api/login", json={
             "email": "instructor1@abc.com",
             "password": "12345678"
@@ -306,14 +292,7 @@ class TestFaqDeleteResource:
 
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
-      
-        client.post("/api/register", json={
-            "email": "instructor1@abc.com",
-            "password": "12345678",
-            "role": "instructor"
-        })
 
-       
         login_response = client.post("/api/login", json={
             "email": "instructor1@abc.com",
             "password": "12345678"
@@ -326,25 +305,10 @@ class TestFaqDeleteResource:
         
         return login_response.json["access_token"]
     
-    def test_post_faq_success(self, client, instructor_jwt_token):
-
-        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
-        data = {
-            "question": "What is 42?",
-            "answer": "It is the answer to life, the universe, and everything."
-        }
-        response = client.post("/api/faq", headers=headers, json=data)
-
-   
-        print("FAQ POST Response:", response.json)
-
-    
-        assert response.status_code == 200
-        assert response.json["message"] == "FAQ created successfully."
 
     def test_delete_faq_success(self, client, instructor_jwt_token):
         
-        faq_id = 1  
+        faq_id = 5
         headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
         response = client.delete(f"/api/faq/{faq_id}", headers=headers)
 
@@ -370,7 +334,6 @@ class TestFaqDeleteResource:
 
         assert response.status_code == 401  
 
-        
 
 ############################################################################################
 
@@ -379,7 +342,6 @@ class TestMilestoneResource:
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
         
-
 
         login_response = client.post("/api/login", json={
             "email": "instructor1@abc.com",
@@ -399,7 +361,6 @@ class TestMilestoneResource:
         print("GET Milestones Response:", response.json)
 
        
-
         assert response.status_code == 200
         assert isinstance(response.json, list)  
         if response.json:  
@@ -430,10 +391,8 @@ class TestMilestoneResource:
         print("POST Milestone Missing Data Response:", response.json)
 
         
-        assert response.status_code == 200  
+        assert response.status_code == 400  
         assert "message" in response.json
-
-
 
 
 
