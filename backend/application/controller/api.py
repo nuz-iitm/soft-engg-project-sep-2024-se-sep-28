@@ -519,10 +519,10 @@ class StudentQueryResource(Resource):
     @role_required('student')
     def get(self):
         """
-        Retrieve all queries 
+        Retrieve all queries for the project_id
         """
-
-        queries = Queries.query.all()
+        project_id = get_project_id_student()
+        queries = Queries.query.filter_by(project_id=project_id).all()
         query_list = [
             {
                 "q_id": query.q_id,
@@ -549,7 +549,9 @@ class StudentQueryResource(Resource):
         project_id = get_project_id_student()
 
         if not desc:
-            return jsonify({"message": "Description is required"})
+            response = jsonify({"message": "Description is required"})
+            response.status_code = 400
+            return response
 
         new_query = Queries(desc=desc, s_id=s_id, project_id=project_id)
         try:
@@ -570,20 +572,24 @@ class StudentQueryUpdateResource(Resource):
         Retrieve a specific query by ID
         """
         
-        if q_id:
-            query = Queries.query.get(q_id)
-            
-            return jsonify({
-                "q_id": query.q_id,
-                "desc": query.desc,
-                "s_id": query.s_id,
-                "i_id": query.i_id,
-                "qdate": query.qdate,
-                "response": query.response,
-                "project_id": query.project_id
-            }, 200)
-        else:
-            return jsonify({"message": "Query not found"})
+        
+        query = Queries.query.get(q_id)
+        
+        if not query:
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
+        
+        return jsonify({
+            "q_id": query.q_id,
+            "desc": query.desc,
+            "s_id": query.s_id,
+            "i_id": query.i_id,
+            "qdate": query.qdate,
+            "response": query.response,
+            "project_id": query.project_id
+        })
+
 
 class InstructorQueryResource(Resource):
 

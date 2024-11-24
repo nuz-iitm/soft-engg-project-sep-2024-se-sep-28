@@ -434,7 +434,90 @@ class TestInstructorQueryResource:
         assert isinstance(response.json, list)  
         assert len(response.json) > 0
 
-##########################################PROJECT RESOURCE##########################   
+############################################STUDENT QUERY RESOURCE##########################################
+
+class TestStudentQueryResource:
+    @pytest.fixture(scope="class")
+    def student_jwt_token(self, client):
+        login_data = {
+            "email": "student1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_student_queries(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        
+        response = client.get("/api/student_query", headers=headers)
+        print("GET Student Queries Response:", response.json)
+
+        assert response.status_code == 200
+        assert len(response.json) > 0
+
+    def test_post_student_query(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        data = {
+            "desc": "This is a new query."
+        }
+        
+        response = client.post("/api/student_query", headers=headers, json=data)
+        print("POST Student Query Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Query created successfully."
+
+    def test_post_student_query_with_missing_desc(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        data = {}
+        
+        response = client.post("/api/student_query", headers=headers, json=data)
+        print("POST Student Query Response (Missing Desc):", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Description is required"
+
+
+class TestStudentQueryUpdateResource:
+    @pytest.fixture(scope="class")
+    def student_jwt_token(self, client):
+        login_data = {
+            "email": "student1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_student_query_by_id(self, client, student_jwt_token):
+        q_id = 1  # Replace with a valid query ID associated with the student
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        
+        response = client.get(f"/api/student_query/{q_id}", headers=headers)
+        print("GET Student Query by ID Response:", response.json)
+
+        assert response.status_code == 200
+        assert "desc" in response.json
+
+    def test_get_student_query_by_nonexistent_id(self, client, student_jwt_token):
+        q_id = 999  # Replace with a non-existing query ID
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        
+        response = client.get(f"/api/student_query/{q_id}", headers=headers)
+        print("GET Student Query by Non-Existent ID Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Query not found"
+
+##########################################PROJECT RESOURCE##########################
+
 class TestProjectResource:
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
