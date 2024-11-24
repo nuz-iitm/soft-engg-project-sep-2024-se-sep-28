@@ -845,7 +845,9 @@ class MilestoneUpdateResource(Resource):
    
         milestone = Milestones.query.get(m_id)
         if not milestone:
-            return jsonify({"message": "Milestone not found"})
+            response = jsonify({"message": "Milestone not found"})
+            response.status_code = 400
+            return response
 
         milestone.desc = data.get("desc")
         milestone.deadline = data.get("deadline")
@@ -865,7 +867,9 @@ class MilestoneUpdateResource(Resource):
         """
         milestone = Milestones.query.get(m_id)
         if not milestone:
-            return jsonify({"message": "Milestone not found"})
+            response = jsonify({"message": "Milestone not found"})
+            response.status_code = 400
+            return response
 
         try:
             db.session.delete(milestone)

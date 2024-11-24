@@ -395,7 +395,93 @@ class TestMilestoneResource:
         assert response.status_code == 400  
         assert "message" in response.json
 
+class TestMilestoneStudentResource:
+    @pytest.fixture(scope="class")
+    def student_jwt_token(self, client):
+        login_data = {
+            "email": "student1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_milestones(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        
+        response = client.get("/api/milestone_student", headers=headers)
+        print("GET Milestones Response:", response.json)
+
+        assert response.status_code == 200
+        assert len(response.json) > 0
+
+class TestMilestoneUpdateResource:
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        login_data = {
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_put_milestone(self, client, instructor_jwt_token):
+        m_id = 3  # Replace with a valid milestone ID associated with the instructor
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "desc": "Updated description",
+            "deadline": "2023-12-31"
+        }
+        
+        response = client.put(f"/api/milestone/{m_id}", headers=headers, json=data)
+        print("PUT Milestone Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Milestone updated successfully"
+
+    def test_delete_milestone(self, client, instructor_jwt_token):
+        m_id = 3  # Replace with a valid milestone ID associated with the instructor
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        
+        response = client.delete(f"/api/milestone/{m_id}", headers=headers)
+        print("DELETE Milestone Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Milestone deleted successfully"
+
+    def test_put_milestone_with_nonexistent_id(self, client, instructor_jwt_token):
+        m_id = 999  # Replace with a non-existing milestone ID
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "desc": "Updated description",
+            "deadline": "2023-12-31"
+        }
+        
+        response = client.put(f"/api/milestone/{m_id}", headers=headers, json=data)
+        print("PUT Milestone Response (Nonexistent ID):", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Milestone not found"
+
+    def test_delete_milestone_with_nonexistent_id(self, client, instructor_jwt_token):
+        m_id = 999  # Replace with a non-existing milestone ID
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        
+        response = client.delete(f"/api/milestone/{m_id}", headers=headers)
+        print("DELETE Milestone Response (Nonexistent ID):", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Milestone not found"
+
 ############################################INSTRUCTOR QUERY RESOURCE##########################################
+
 class TestInstructorQueryResource:
 
     @pytest.fixture(scope="class")
