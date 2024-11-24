@@ -365,7 +365,9 @@ class StudentUpdate(Resource):
             updated_student = Students.query.filter_by(s_id=s_id).first()
 
             if not updated_student:
-                return jsonify({"message": "student not found"})
+                response = jsonify({"message": "student not found"})
+                response.status_code = 400
+                return response
             
             old_email = updated_student.email
             new_email = data.get('email')
@@ -395,12 +397,14 @@ class StudentUpdate(Resource):
         # getting student to be deleted
         student = Students.query.filter_by(s_id=s_id).first()
 
+        if not student:
+            response = jsonify({"message": "Student not found"})
+            response.status_code = 400
+            return response
+
         # deleting from user model
         email = student.email
         user = User.query.filter_by(email=email).first()
-
-        if not student:
-            return jsonify({"message": "Student not found"})
 
         db.session.delete(student)
         if user:

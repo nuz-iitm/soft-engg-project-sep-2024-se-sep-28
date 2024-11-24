@@ -243,7 +243,7 @@ class TestFaqUpdateResource:
 
     def test_update_faq_success(self, client, instructor_jwt_token):
         headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
-        # Update f_id 1
+        # Update f_id 4
         f_id =4
       
         # Update the FAQ with new question and answer
@@ -667,6 +667,76 @@ class TestBulkUpload:
                 assert response.json["message"] == "Invalid file type", "Unexpected response message"
         except FileNotFoundError:
             assert False, "File test_invalid_file.txt not found. Ensure the file exists in the directory."
+
+
+
+class TestStudentUpdate:
+
+    @pytest.fixture(scope="class")
+    def admin_jwt_token(self, client):
+        login_data = {
+            "email": "abcde@abcd.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_put_student_as_admin(self, client, admin_jwt_token):
+        s_id = 12
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        data = {
+            "name": "Updated Name",
+            "email": "updated_email@example.com",
+            "project_id": "new_project_id"
+        }
+        
+        response = client.put(f"/api/student/{s_id}", headers=headers, json=data)
+        print("PUT Student Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Student updated successfully."
+
+
+    def test_put_student_with_nonexistent_s_id(self, client, admin_jwt_token):
+        s_id = 999
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        data = {
+            "name": "Updated Name",
+            "email": "updated_email@example.com",
+            "project_id": "new_project_id"
+        }
+        
+        response = client.put(f"/api/student/{s_id}", headers=headers, json=data)
+        print("PUT Student Response (Nonexistent ID):", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "student not found"
+
+    def test_delete_student_as_admin(self, client, admin_jwt_token):
+        s_id = 12  # Replace with an existing student ID
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        
+        response = client.delete(f"/api/student/{s_id}", headers=headers)
+        print("DELETE Student Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Student deleted successfully."
+
+
+    def test_delete_student_with_nonexistent_s_id(self, client, admin_jwt_token):
+        s_id = 999  # Replace with a non-existing student ID
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        
+        response = client.delete(f"/api/student/{s_id}", headers=headers)
+        print("DELETE Student Response (Nonexistent ID):", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Student not found"
+
 
 if __name__ == '__main__':
     pytest.main(['test.py'])
