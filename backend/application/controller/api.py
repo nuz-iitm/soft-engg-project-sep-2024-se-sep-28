@@ -454,7 +454,9 @@ class InstructorUpdateResource(Resource):
             updated_instructor = Instructors.query.filter_by(i_id=i_id).first()
 
             if not updated_instructor:
-                return jsonify({"message": "instructor not found"})
+                response = jsonify({"message": "instructor not found"})
+                response.status_code = 400
+                return response
             
             old_email = updated_instructor.email
             new_email = data.get('email')
@@ -480,6 +482,11 @@ class InstructorUpdateResource(Resource):
     def delete(self, i_id):
         # getting instructor to be deleted
         instructor = Instructors.query.filter_by(i_id=i_id).first()
+
+        if not instructor:
+            response = jsonify({"message": "Instructor not found"})
+            response.status_code = 400
+            return response
 
         # deleting from user model
         email = instructor.email

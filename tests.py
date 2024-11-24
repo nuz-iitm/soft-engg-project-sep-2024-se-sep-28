@@ -501,6 +501,104 @@ class TestProjectResource:
         assert response.json[0]["message"] == 'Access denied'
         assert response.json[1] == 403
 
+#####################################INSTRUCTOR RESOURCE#####################
+class TestInstructorResource:
+    @pytest.fixture(scope="class")
+    def admin_jwt_token(self, client):
+        login_data = {
+            "email": "abcde@abcd.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_instructors_success(self, client, admin_jwt_token):
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        response = client.get("/api/instructor", headers=headers)
+
+        print("GET Instructors Response:", response.json)
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+        if response.json:
+            for instructor in response.json:
+                assert "i_id" in instructor
+                assert "name" in instructor
+                assert "email" in instructor
+                assert "project_id" in instructor
+                assert "designation" in instructor
+
+    def test_add_instructor_success(self, client, admin_jwt_token):
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        data = {
+            "name": "Instructor4",
+            "email": "instructor4@abc.com",
+            "project_id": 1,
+            "designation": "Professor"
+        }
+        response = client.post("/api/instructor", headers=headers, json=data)
+
+        print("POST Add Instructor Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Instructor added successfully."
+
+    def test_update_instructor_success(self, client, admin_jwt_token):
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        data = {
+            "name": "Updated Instructor",
+            "email": "updated.instructor@abc.com",
+            "project_id": 1,
+            "designation": "Senior Professor"
+        }
+        i_id = 4
+        response = client.put(f"/api/instructor/{i_id}", headers=headers, json=data)
+
+        print("PUT Instructor Update Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Instructor updated successfully."
+
+    def test_update_instructor_not_found(self, client, admin_jwt_token):
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        data = {
+            "name": "Updated Instructor",
+            "email": "nonexistent.instructor@abc.com",
+            "project_id": 1,
+            "designation": "Senior Professor"
+        }
+        i_id = 9999
+        response = client.put(f"/api/instructor/{i_id}", headers=headers, json=data)
+
+        print("PUT Instructor Update Not Found Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "instructor not found"
+
+    def test_delete_instructor_success(self, client, admin_jwt_token):
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        i_id = 4  
+        response = client.delete(f"/api/instructor/{i_id}", headers=headers)
+
+        print("DELETE Instructor Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Instructor deleted successfully."
+
+    def test_delete_instructor_not_found(self, client, admin_jwt_token):
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        i_id = 9999  
+        response = client.delete(f"/api/instructor/{i_id}", headers=headers)
+
+        print("DELETE Instructor Not Found Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Instructor not found"
+
 
 if __name__ == '__main__':
     pytest.main(['test.py'])
