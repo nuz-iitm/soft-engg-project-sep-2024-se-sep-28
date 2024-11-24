@@ -599,6 +599,73 @@ class TestInstructorResource:
         assert response.status_code == 400
         assert response.json["message"] == "Instructor not found"
 
+##################student resource#################################
+
+class TestBulkUpload:
+
+    @pytest.fixture(scope="class")
+    def admin_jwt_token(self, client):
+     
+        login_data = {"email": "abcde@abcd.com", "password": "12345678"}
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200, "Login failed. Check credentials."
+        return login_response.json["access_token"]
+
+    def test_get_students_as_admin(self, client, admin_jwt_token):
+    
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        response = client.get("/api/student", headers=headers)
+
+        print("GET Students Response:", response.json)
+
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert isinstance(response.json, list), "Response should be a list of students"
+
+    # def test_post_students_csv_success(self, client, admin_jwt_token):
+   
+    #     headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+      
+    #     try:
+    #         with open("test_students.csv", "rb") as file:
+    #             data = {'csvFile': (file, "test_students.csv")}
+    #             response = client.post(
+    #                 "/api/student", headers=headers, data=data, content_type="multipart/form-data"
+    #             )
+
+    #             print("POST Students CSV Response:", response.json)
+
+    #             assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+    #             assert response.json["message"] == "Students added successfully"
+    #     except FileNotFoundError:
+    #         assert False, "File test_students.csv not found. Ensure the file exists in the directory."
+
+    def test_post_students_csv_no_file(self, client, admin_jwt_token):
+     
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        response = client.post("/api/student", headers=headers)
+
+        print("POST Students CSV No File Response:", response.json)
+
+        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+        assert response.json["message"] == "No file part", "Unexpected response message"
+
+    def test_post_students_csv_invalid_file_type(self, client, admin_jwt_token):
+   
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+     
+        try:
+            with open("test_invalid_file.txt", "rb") as file:
+                data = {'csvFile': (file, "test_invalid_file.txt")}
+                response = client.post(
+                    "/api/student", headers=headers, data=data, content_type="multipart/form-data"
+                )
+
+                print("POST Students CSV Invalid File Type Response:", response.json)
+
+                assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+                assert response.json["message"] == "Invalid file type", "Unexpected response message"
+        except FileNotFoundError:
+            assert False, "File test_invalid_file.txt not found. Ensure the file exists in the directory."
 
 if __name__ == '__main__':
     pytest.main(['test.py'])

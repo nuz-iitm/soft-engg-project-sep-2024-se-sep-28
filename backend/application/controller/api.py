@@ -312,12 +312,16 @@ class BulkUpload(Resource):
         # args = parser.parse_args()
 
         if 'csvFile' not in request.files:
-            return jsonify({"message": "No file part"})
+            response = jsonify({"message": "No file part"})
+            response.status_code = 400
+            return response
 
         file = request.files['csvFile']
 
         if file.filename == '':
-            return jsonify({"message": "No selected file"})
+            response = jsonify({"message": "No selected file"})
+            response.status_code = 400
+            return response
 
         if file and allowed_file_csv(file.filename):
             students_data = []
@@ -344,7 +348,9 @@ class BulkUpload(Resource):
                 db.session.rollback()
                 return jsonify({"message": str(e)})
         else:
-            return jsonify({"message": "Invalid file type"})
+            response = jsonify({"message": "Invalid file type"})
+            response.status_code = 400
+            return response
 
 
 class StudentUpdate(Resource):
