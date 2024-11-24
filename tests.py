@@ -434,6 +434,87 @@ class TestInstructorQueryResource:
         assert isinstance(response.json, list)  
         assert len(response.json) > 0
 
+############################################INSTRUCTOR UPDATE QUERY RESOURCE##########################################
+
+
+class TestInstructorUpdateQueryResource:
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        login_data = {
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_instructor_query_by_id(self, client, instructor_jwt_token):
+        q_id = 4  # Replace with a valid query ID associated with the instructor
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        
+        response = client.get(f"/api/instructor_query/{q_id}", headers=headers)
+        print("GET Instructor Query by ID Response:", response.json)
+
+        assert response.status_code == 200
+        assert "desc" in response.json
+
+    def test_get_instructor_query_by_nonexistent_id(self, client, instructor_jwt_token):
+        q_id = 999  # Replace with a non-existing query ID
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        
+        response = client.get(f"/api/instructor_query/{q_id}", headers=headers)
+        print("GET Instructor Query by Non-Existent ID Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Query not found"
+
+    def test_put_instructor_query_response(self, client, instructor_jwt_token):
+        q_id = 4  # Replace with a valid query ID associated with the instructor
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "response": "This is the updated response."
+        }
+        
+        response = client.put(f"/api/instructor_query/{q_id}", headers=headers, json=data)
+        print("PUT Instructor Query Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Responce submitted successfully."
+
+    def test_put_instructor_query_with_missing_response(self, client, instructor_jwt_token):
+        q_id = 4  # Replace with a valid query ID associated with the instructor
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {}
+        
+        response = client.put(f"/api/instructor_query/{q_id}", headers=headers, json=data)
+        print("PUT Instructor Query Response (Missing Response):", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Response is required"
+
+    def test_delete_instructor_query(self, client, instructor_jwt_token):
+        q_id = 4  # Replace with a valid query ID associated with the instructor
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        
+        response = client.delete(f"/api/instructor_query/{q_id}", headers=headers)
+        print("DELETE Instructor Query Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Query deleted successfully."
+
+    def test_delete_instructor_query_with_nonexistent_id(self, client, instructor_jwt_token):
+        q_id = 999  # Replace with a non-existing query ID
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        
+        response = client.delete(f"/api/instructor_query/{q_id}", headers=headers)
+        print("DELETE Instructor Query by Non-Existent ID Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "Query not found"
+
 ############################################STUDENT QUERY RESOURCE##########################################
 
 class TestStudentQueryResource:
@@ -480,6 +561,9 @@ class TestStudentQueryResource:
 
         assert response.status_code == 400
         assert response.json["message"] == "Description is required"
+
+
+############################################STUDENT UPDATE QUERY RESOURCE##########################################
 
 
 class TestStudentQueryUpdateResource:

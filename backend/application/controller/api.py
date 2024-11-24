@@ -75,6 +75,13 @@ def get_s_id():
     s_id = student.s_id
     return s_id
 
+def get_i_id():
+    user_id = get_jwt_identity()['user_id']
+    user = User.query.get(user_id)
+    email = user.email
+    instructor = Instructors.query.filter_by(email=email).first()
+    i_id = instructor.i_id
+    return i_id
 
 # api for login
 class Login(Resource):
@@ -597,9 +604,10 @@ class InstructorQueryResource(Resource):
     @role_required('instructor')
     def get(self):
         """
-        Retrieve all queries
+        Retrieve all queries for project_id
         """
-        queries = Queries.query.all()
+        project_id = get_project_id_instructor()
+        queries = Queries.query.filter_by(project_id=project_id).all()
         query_list = [
             {
                 "q_id": query.q_id,
@@ -624,21 +632,22 @@ class InstructorUpdateQueryResource(Resource):
         """
         Retrieve a specific query by ID.
         """
-        if q_id:
-            query = Queries.query.get(q_id)
-            if not query:
-                return jsonify({"message": "Query not found"})
-            return jsonify({
-                "q_id": query.q_id,
-                "desc": query.desc,
-                "s_id": query.s_id,
-                "i_id": query.i_id,
-                "qdate": query.qdate,
-                "response": query.response,
-                "project_id": query.project_id
-            }, 200)
-        else:
-            return jsonify({"message": "query not found"})
+        query = Queries.query.get(q_id)
+        
+        if not query:
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
+        
+        return jsonify({
+            "q_id": query.q_id,
+            "desc": query.desc,
+            "s_id": query.s_id,
+            "i_id": query.i_id,
+            "qdate": query.qdate,
+            "response": query.response,
+            "project_id": query.project_id
+        })
 
     @jwt_required()
     @role_required('instructor')
@@ -651,8 +660,17 @@ class InstructorUpdateQueryResource(Resource):
 
         query = Queries.query.get(q_id)
         if not query:
-            return jsonify({"message": "Query not found"})
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
 
+
+        if not response:
+            response = jsonify({"message": "Response is required"})
+            response.status_code = 400
+            return response
+
+        query.i_id = get_i_id()
         query.response = response
 
         try:
@@ -670,7 +688,10 @@ class InstructorUpdateQueryResource(Resource):
         """
         query = Queries.query.get(q_id)
         if not query:
-            return jsonify({"message": "Query not found"})
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
+        
         try:
             db.session.delete(query)
             db.session.commit()
