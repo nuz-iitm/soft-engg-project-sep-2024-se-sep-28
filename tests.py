@@ -75,6 +75,7 @@ def app():
 def client(app):
     with app.test_client() as client:
         yield client
+
 #################################LOGIN AND REGISTER#####################################
 # Test cases for Register Resource
 class TestRegisterResource:
@@ -621,23 +622,23 @@ class TestBulkUpload:
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
         assert isinstance(response.json, list), "Response should be a list of students"
 
-    # def test_post_students_csv_success(self, client, admin_jwt_token):
+    def test_post_students_csv_success(self, client, admin_jwt_token):
    
-    #     headers = {"Authorization": f"Bearer {admin_jwt_token}"}
+        headers = {"Authorization": f"Bearer {admin_jwt_token}"}
       
-    #     try:
-    #         with open("test_students.csv", "rb") as file:
-    #             data = {'csvFile': (file, "test_students.csv")}
-    #             response = client.post(
-    #                 "/api/student", headers=headers, data=data, content_type="multipart/form-data"
-    #             )
+        try:
+            with open("test_students.csv", "rb") as file:
+                data = {'csvFile': (file, "test_students.csv")}
+                response = client.post(
+                    "/api/student", headers=headers, data=data, content_type="multipart/form-data"
+                )
 
-    #             print("POST Students CSV Response:", response.json)
+                print("POST Students CSV Response:", response.json)
 
-    #             assert response.status_code == 200, f"Expected 200, got {response.status_code}"
-    #             assert response.json["message"] == "Students added successfully"
-    #     except FileNotFoundError:
-    #         assert False, "File test_students.csv not found. Ensure the file exists in the directory."
+                assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+                assert response.json["message"] == "Students added successfully"
+        except FileNotFoundError:
+            assert False, "File test_students.csv not found. Ensure the file exists in the directory."
 
     def test_post_students_csv_no_file(self, client, admin_jwt_token):
      
