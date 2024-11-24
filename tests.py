@@ -336,7 +336,7 @@ class TestFaqDeleteResource:
         assert response.status_code == 401  
 
 
-############################################################################################
+############################################################ MILESTONES RESOURCES ################################
 
 class TestMilestoneResource:
 
@@ -418,6 +418,9 @@ class TestMilestoneStudentResource:
         assert response.status_code == 200
         assert len(response.json) > 0
 
+############################################################ MILESTONES UPDATE RESOURCES ################################
+
+
 class TestMilestoneUpdateResource:
     @pytest.fixture(scope="class")
     def instructor_jwt_token(self, client):
@@ -479,6 +482,72 @@ class TestMilestoneUpdateResource:
 
         assert response.status_code == 400
         assert response.json["message"] == "Milestone not found"
+
+############################################MILESTONE SUBMISSION RESOURCE##########################################
+
+
+
+class TestMilestoneSubmissionResource:
+    @pytest.fixture(scope="class")
+    def student_jwt_token(self, client):
+        login_data = {
+            "email": "student2@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_post_milestone_submission_success(self, client, student_jwt_token):
+        m_id = 1  
+
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        file_path = "test_milestone.pdf"  # Ensure this PDF exists in your directory
+        with open(file_path, "rb") as file:
+            data = {'pdfFile': (file, "test_milestone.pdf")}
+            response = client.post(
+                f"/api/milestone_sub/{m_id}", headers=headers, data=data, content_type="multipart/form-data"
+            )
+
+        print("POST Milestone Submission Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Submission successful"
+
+    def test_post_milestone_submission_no_file(self, client, student_jwt_token):
+        m_id = 1  
+
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        response = client.post(f"/api/milestone_sub/{m_id}", headers=headers)
+
+        print("POST Milestone Submission No File Response:", response.json)
+
+        assert response.status_code == 400
+        assert response.json["message"] == "No selected file"
+    
+    def test_post_milestone_submission_invalid_file_type(self, client, student_jwt_token):
+        m_id = 1  
+
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+
+        try:
+            with open("test_invalid_file.txt", "rb") as file:
+                data = {'pdfFile': (file, "test_invalid_file.txt")}
+                response = client.post(
+                    f"/api/milestone_sub/{m_id}", headers=headers, data=data, content_type="multipart/form-data"
+                )
+
+            print("POST Milestone Submission Invalid File Type Response:", response.json)
+
+            assert response.status_code == 400
+            assert response.json["message"] == "Invalid file type"
+        except FileNotFoundError:
+            assert False, "File test_invalid_file.txt not found. Ensure the file exists in the directory."
+
+
 
 ############################################INSTRUCTOR QUERY RESOURCE##########################################
 

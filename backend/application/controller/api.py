@@ -885,6 +885,11 @@ class MilestoneSubmissionResource(Resource):
     @role_required('student')
     def post(self, m_id):
 
+        if 'pdfFile' not in request.files:
+            response = jsonify({"message": "No selected file"})
+            response.status_code = 400
+            return response
+
         file = request.files['pdfFile']
 
         if file.filename == '':
@@ -916,7 +921,9 @@ class MilestoneSubmissionResource(Resource):
                 db.session.rollback()
                 return jsonify({"message": str(e)})
         else:
-            return jsonify({"message": "Invalid file type"})
+            response = jsonify({"message": "Invalid file type"})
+            response.status_code = 400
+            return response
 
         
 class DashBoardResource(Resource):
