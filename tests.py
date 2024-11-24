@@ -274,7 +274,7 @@ class TestFaqUpdateResource:
         create_response = client.post("/api/faq", headers=headers, json=create_data)
         assert create_response.status_code == 200
 
-        f_id = 1
+        f_id = 5
         
 
         # Attempt to update with invalid data
@@ -308,7 +308,7 @@ class TestFaqDeleteResource:
 
     def test_delete_faq_success(self, client, instructor_jwt_token):
         
-        faq_id = 5
+        faq_id = 4
         headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
         response = client.delete(f"/api/faq/{faq_id}", headers=headers)
 
@@ -394,6 +394,112 @@ class TestMilestoneResource:
         assert response.status_code == 400  
         assert "message" in response.json
 
+############################################INSTRUCTOR QUERY RESOURCE##########################################
+class TestInstructorQueryResource:
+
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+
+
+        login_response = client.post("/api/login", json={
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        })
+
+        assert login_response.status_code == 200
+        assert "access_token" in login_response.json
+
+        return login_response.json["access_token"]
+
+    @pytest.fixture(scope="class")
+    def create_queries(self, client, instructor_jwt_token):
+        
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data_list = [
+            {"desc": "what is the meaning of life?"},
+            {"desc": "what makes us study endlessly?"}
+        ]
+        for data in data_list:
+            response = client.post("/api/student_query", headers=headers, json=data)
+            assert response.status_code == 200
+
+    def test_get_all_queries_success(self, client, instructor_jwt_token, create_queries):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.get("/api/instructor_query", headers=headers)
+
+        print("GET All Queries Response:", response.json)
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)  
+        assert len(response.json) > 0
+
+##########################################PROJECT RESOURCE##########################   
+class TestProjectResource:
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        
+        login_data = {
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    @pytest.fixture(scope="class")
+    def student_jwt_token(self, client):
+       
+        login_data = {
+            "email": "student1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_project_statement_as_instructor(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.get("/api/project_statement", headers=headers)
+
+        print("GET Project Statement Response (Instructor):", response.json)
+
+        assert response.status_code == 200
+        assert "statement" in response.json
+
+    def test_get_project_statement_as_student(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        response = client.get("/api/project_statement", headers=headers)
+
+        print("GET Project Statement Response (Student):", response.json)
+
+        assert response.status_code == 200
+        assert "statement" in response.json
+
+    def test_put_project_statement_as_instructor(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {"statement": "This is a new project statement for testing."}
+        response = client.put("/api/project_statement", headers=headers, json=data)
+
+        print("PUT Project Statement Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Statement added successfully."
+
+    def test_put_project_statement_as_student(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        data = {"statement": "This statement should not be accepted."}
+        response = client.put("/api/project_statement", headers=headers, json=data)
+
+        print("PUT Project Statement Response (Student):", response.json)
+
+        assert response.json[0]["message"] == 'Access denied'
+        assert response.json[1] == 403
 
 
 if __name__ == '__main__':
