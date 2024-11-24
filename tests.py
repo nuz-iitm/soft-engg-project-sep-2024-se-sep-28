@@ -44,7 +44,7 @@ def app():
             StudentQueryResource, StudentQueryUpdateResource, InstructorQueryResource,
             InstructorUpdateQueryResource, MilestoneResource, MilestoneStudentResource,
             MilestoneUpdateResource, MilestoneSubmissionResource, ProjectResource,
-            DashBoardResource
+            DashBoardResource, EventResource, EventStudentResource, StudentResourceAll
         )
 
         # Create an API instance and add resources
@@ -68,6 +68,9 @@ def app():
         api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>')
         api.add_resource(ProjectResource, '/api/project_statement')
         api.add_resource(DashBoardResource, '/api/dash_top_studd')
+        api.add_resource(EventStudentResource, '/api/student_events')
+        api.add_resource(EventResource, '/api/events')
+        api.add_resource(StudentResourceAll, '/api/student_all/<int:s_id>')
 
     return test_app
 
@@ -825,6 +828,7 @@ class TestProjectResource:
         assert response.json[1] == 403
 
 #####################################INSTRUCTOR RESOURCE#####################
+
 class TestInstructorResource:
     @pytest.fixture(scope="class")
     def admin_jwt_token(self, client):
@@ -990,7 +994,7 @@ class TestBulkUpload:
         except FileNotFoundError:
             assert False, "File test_invalid_file.txt not found. Ensure the file exists in the directory."
 
-
+###################################### STUDENT UPDATE RESOURCE ######################################
 
 class TestStudentUpdate:
 
@@ -1059,6 +1063,156 @@ class TestStudentUpdate:
         assert response.status_code == 400
         assert response.json["message"] == "Student not found"
 
+###################################### DASHBOARD RESOURCE ######################################
+
+class TestDashBoardResource:
+
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        login_data = {
+            "email": "instructor1@abc.com",
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        
+        login_json = json.loads(login_response.data)
+        assert 'access_token' in login_json
+        return login_json['access_token']
+
+    def test_get_dashboard_as_instructor(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.get("/api/dash_top_studd", headers=headers)
+
+        print("GET Dashboard Response (Instructor):", response.json)
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+        for student in response.json:
+            assert 's_id' in student
+            assert 'name' in student
+            assert 'commits' in student
+    
+    def test_get_dashboard_unauthorized(self, client):
+
+       response = client.get("/api/dash_top_studd")
+       print("Dashboard Unauthorized Response:", response.json)
+
+  
+       assert response.status_code == 401, f"Expected 401, got {response.status_code}"
+       assert "msg" in response.json, "Missing 'msg' in unauthorized response"
+       assert response.json["msg"] == "Missing Authorization Header", "Unexpected message for unauthorized access"
+
+
+######################################### EVENTS RESOURCE ################################
+
+class TestEventResource:
+
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        # Log in as an instructor
+        login_data = {
+            "email": "instructor1@abc.com", 
+            "password": "12345678"
+        }
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        return login_response.json["access_token"]
+
+    def test_get_events_success(self, client, instructor_jwt_token):
+
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        response = client.get("/api/events", headers=headers)
+
+        print("GET Events Response:", response.json)
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+        if response.json:
+            for event in response.json:
+                assert "e_id" in event
+                assert "title" in event
+                assert "start" in event
+
+    def test_post_event_success(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        data = {
+            "title": "New Event", 
+            "start": "2024-12-01"
+        }
+        response = client.post("/api/events", headers=headers, json=data)
+
+        print("POST Event Response:", response.json)
+
+        assert response.status_code == 200
+        assert response.json["message"] == "Event created successfully"
+
+###################### student event resource ####################################        
+
+class TestEventStudentResource:
+    @pytest.fixture(scope="class")
+    def student_jwt_token(self, client):
+       
+        login_data = {"email": "student1@abc.com", "password": "12345678"}
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        return login_response.json["access_token"]
+
+    def test_get_student_events_success(self, client, student_jwt_token):
+        headers = {"Authorization": f"Bearer {student_jwt_token}"}
+        response = client.get("/api/student_events", headers=headers)
+
+        print("GET Student Events Response:", response.json)
+
+        assert response.status_code == 200
+        assert isinstance(response.json, list)
+        if response.json:
+            for event in response.json:
+                assert "title" in event
+                assert "start" in event
+
+############## Student resource all #######################
+
+class TestStudentResourceAll:
+    @pytest.fixture(scope="class")
+    def instructor_jwt_token(self, client):
+        # Log in as an instructor
+        login_data = {"email": "instructor1@abc.com", "password": "12345678"}
+        login_response = client.post("/api/login", json=login_data)
+        assert login_response.status_code == 200
+        return login_response.json["access_token"]
+
+    def test_get_student_resource_success(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        student_id = 1  
+        response = client.get(f"/api/student_all/{student_id}", headers=headers)
+
+        print("GET Student Resource Response:", response.json)
+
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "student" in response.json
+        assert "milestone_status_list" in response.json
+        assert "commit_list" in response.json
+
+    def test_get_student_resource_not_found(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        student_id = 99999  
+        response = client.get(f"/api/student_all/{student_id}", headers=headers)
+
+        print("GET Student Resource Not Found Response:", response.json)
+
+        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+        assert response.json["message"] == "Student not found", f"Unexpected message: {response.json.get('message')}"
+
+    def test_get_student_resource_no_account(self, client, instructor_jwt_token):
+        headers = {"Authorization": f"Bearer {instructor_jwt_token}"}
+        student_id = 11
+        response = client.get(f"/api/student_all/{student_id}", headers=headers)
+
+        print("GET Student Resource No Account Response:", response.json)
+
+        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
+        assert response.json["message"] == "Student has not made an account", f"Unexpected message: {response.json.get('message')}"
 
 if __name__ == '__main__':
     pytest.main(['test.py'])
