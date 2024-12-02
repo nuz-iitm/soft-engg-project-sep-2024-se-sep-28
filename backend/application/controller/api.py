@@ -904,6 +904,7 @@ class MilestoneSubmissionResource(Resource):
                 sub_date = y.strftime("%c") # submission date
                 f_n, f_ex = os.path.splitext(filename)
                 filename = sub_date+"_"+f_n+f_ex
+                filename = filename.replace(" ", "_") # replaced spaces with "_"
                 basedir = os.path.abspath(os.path.dirname(__file__))
                 size = len(basedir)
                 uploads_dir = basedir[:size-22]+'uploads/'
