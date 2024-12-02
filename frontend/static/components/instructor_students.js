@@ -23,7 +23,7 @@ export default {
 
           <!-- Students Section -->
           <div class="row">
-            <div v-for="(student, index) in students" :key="index" class="col-lg-6 col-md-12 mb-4">
+            <div v-for="(student, index) in students" :key="index" class="col-lg-6 col-md-12 mb-4" @click="navigateToStudentPage(student.s_id)">
               <div class="card" style="background-color: rgba(255, 255, 255, 0.95); padding: 25px; border-radius: 10px; box-shadow: 0 8px 16px rgba(47, 79, 79, 0.2);">
                 <h3 class="text-center" style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; color: #2F4F4F;">{{ student.name }}</h3>
                 <p class="text-center" style="font-size: 1rem; color: #6A9F8A; margin-bottom: 15px;">Account Created: {{ student.is_registered }}</p>
@@ -56,6 +56,11 @@ export default {
       .then(response => response.json())
       .then(data => this.students = data.map(student => ({ ...student })))
       .catch(error => console.error("Error fetching students:", error));
+  },
+  methods: {
+    navigateToStudentPage(s_id) {
+      this.$router.push({ name: 'instructors_students2', params: { s_id } });
+    }
   },
 
   components: {

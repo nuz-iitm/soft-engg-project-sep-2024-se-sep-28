@@ -75,6 +75,13 @@ def get_s_id():
     s_id = student.s_id
     return s_id
 
+def get_i_id():
+    user_id = get_jwt_identity()['user_id']
+    user = User.query.get(user_id)
+    email = user.email
+    instructor = Instructors.query.filter_by(email=email).first()
+    i_id = instructor.i_id
+    return i_id
 
 # api for login
 class Login(Resource):
@@ -157,7 +164,9 @@ class Register(Resource):
 
         # Basic validation
         if not email or not password:
-            return jsonify({"message": "Email and password are required"})
+            response = jsonify({"message": "Email and password are required"})
+            response.status_code = 400
+            return response
 
 
         
@@ -213,6 +222,16 @@ class FaqResource(Resource):
     def post(self):
         
         data = request.json
+
+        question = data.get("question")
+        answer = data.get("answer")
+
+        # Basic validation
+        if not question or not answer:
+            response = jsonify({"message": "Question and answer are required"})
+            response.status_code = 400
+            return response
+
 
         # getting current user project_id
         project_id = get_project_id_instructor()
@@ -300,12 +319,16 @@ class BulkUpload(Resource):
         # args = parser.parse_args()
 
         if 'csvFile' not in request.files:
-            return jsonify({"message": "No file part"})
+            response = jsonify({"message": "No file part"})
+            response.status_code = 400
+            return response
 
         file = request.files['csvFile']
 
         if file.filename == '':
-            return jsonify({"message": "No selected file"})
+            response = jsonify({"message": "No selected file"})
+            response.status_code = 400
+            return response
 
         if file and allowed_file_csv(file.filename):
             students_data = []
@@ -332,7 +355,9 @@ class BulkUpload(Resource):
                 db.session.rollback()
                 return jsonify({"message": str(e)})
         else:
-            return jsonify({"message": "Invalid file type"})
+            response = jsonify({"message": "Invalid file type"})
+            response.status_code = 400
+            return response
 
 
 class StudentUpdate(Resource):
@@ -347,7 +372,9 @@ class StudentUpdate(Resource):
             updated_student = Students.query.filter_by(s_id=s_id).first()
 
             if not updated_student:
-                return jsonify({"message": "student not found"})
+                response = jsonify({"message": "student not found"})
+                response.status_code = 400
+                return response
             
             old_email = updated_student.email
             new_email = data.get('email')
@@ -377,12 +404,14 @@ class StudentUpdate(Resource):
         # getting student to be deleted
         student = Students.query.filter_by(s_id=s_id).first()
 
+        if not student:
+            response = jsonify({"message": "Student not found"})
+            response.status_code = 400
+            return response
+
         # deleting from user model
         email = student.email
         user = User.query.filter_by(email=email).first()
-
-        if not student:
-            return jsonify({"message": "Student not found"})
 
         db.session.delete(student)
         if user:
@@ -442,7 +471,9 @@ class InstructorUpdateResource(Resource):
             updated_instructor = Instructors.query.filter_by(i_id=i_id).first()
 
             if not updated_instructor:
-                return jsonify({"message": "instructor not found"})
+                response = jsonify({"message": "instructor not found"})
+                response.status_code = 400
+                return response
             
             old_email = updated_instructor.email
             new_email = data.get('email')
@@ -469,6 +500,11 @@ class InstructorUpdateResource(Resource):
         # getting instructor to be deleted
         instructor = Instructors.query.filter_by(i_id=i_id).first()
 
+        if not instructor:
+            response = jsonify({"message": "Instructor not found"})
+            response.status_code = 400
+            return response
+
         # deleting from user model
         email = instructor.email
         user = User.query.filter_by(email=email).first()
@@ -490,10 +526,10 @@ class StudentQueryResource(Resource):
     @role_required('student')
     def get(self):
         """
-        Retrieve all queries 
+        Retrieve all queries for the project_id
         """
-
-        queries = Queries.query.all()
+        project_id = get_project_id_student()
+        queries = Queries.query.filter_by(project_id=project_id).all()
         query_list = [
             {
                 "q_id": query.q_id,
@@ -520,7 +556,9 @@ class StudentQueryResource(Resource):
         project_id = get_project_id_student()
 
         if not desc:
-            return jsonify({"message": "Description is required"})
+            response = jsonify({"message": "Description is required"})
+            response.status_code = 400
+            return response
 
         new_query = Queries(desc=desc, s_id=s_id, project_id=project_id)
         try:
@@ -541,20 +579,24 @@ class StudentQueryUpdateResource(Resource):
         Retrieve a specific query by ID
         """
         
-        if q_id:
-            query = Queries.query.get(q_id)
-            
-            return jsonify({
-                "q_id": query.q_id,
-                "desc": query.desc,
-                "s_id": query.s_id,
-                "i_id": query.i_id,
-                "qdate": query.qdate,
-                "response": query.response,
-                "project_id": query.project_id
-            }, 200)
-        else:
-            return jsonify({"message": "Query not found"})
+        
+        query = Queries.query.get(q_id)
+        
+        if not query:
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
+        
+        return jsonify({
+            "q_id": query.q_id,
+            "desc": query.desc,
+            "s_id": query.s_id,
+            "i_id": query.i_id,
+            "qdate": query.qdate,
+            "response": query.response,
+            "project_id": query.project_id
+        })
+
 
 class InstructorQueryResource(Resource):
 
@@ -562,9 +604,10 @@ class InstructorQueryResource(Resource):
     @role_required('instructor')
     def get(self):
         """
-        Retrieve all queries
+        Retrieve all queries for project_id
         """
-        queries = Queries.query.all()
+        project_id = get_project_id_instructor()
+        queries = Queries.query.filter_by(project_id=project_id).all()
         query_list = [
             {
                 "q_id": query.q_id,
@@ -589,21 +632,22 @@ class InstructorUpdateQueryResource(Resource):
         """
         Retrieve a specific query by ID.
         """
-        if q_id:
-            query = Queries.query.get(q_id)
-            if not query:
-                return jsonify({"message": "Query not found"})
-            return jsonify({
-                "q_id": query.q_id,
-                "desc": query.desc,
-                "s_id": query.s_id,
-                "i_id": query.i_id,
-                "qdate": query.qdate,
-                "response": query.response,
-                "project_id": query.project_id
-            }, 200)
-        else:
-            return jsonify({"message": "query not found"})
+        query = Queries.query.get(q_id)
+        
+        if not query:
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
+        
+        return jsonify({
+            "q_id": query.q_id,
+            "desc": query.desc,
+            "s_id": query.s_id,
+            "i_id": query.i_id,
+            "qdate": query.qdate,
+            "response": query.response,
+            "project_id": query.project_id
+        })
 
     @jwt_required()
     @role_required('instructor')
@@ -616,8 +660,17 @@ class InstructorUpdateQueryResource(Resource):
 
         query = Queries.query.get(q_id)
         if not query:
-            return jsonify({"message": "Query not found"})
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
 
+
+        if not response:
+            response = jsonify({"message": "Response is required"})
+            response.status_code = 400
+            return response
+
+        query.i_id = get_i_id()
         query.response = response
 
         try:
@@ -635,7 +688,10 @@ class InstructorUpdateQueryResource(Resource):
         """
         query = Queries.query.get(q_id)
         if not query:
-            return jsonify({"message": "Query not found"})
+            response = jsonify({"message": "Query not found"})
+            response.status_code = 400
+            return response
+        
         try:
             db.session.delete(query)
             db.session.commit()
@@ -719,11 +775,18 @@ class MilestoneResource(Resource):
         Create a new milestone.
         """
         data = request.json
+        desc = data.get('desc')
+        deadline = data.get('deadline')
+        # Basic validation
+        if not desc or not deadline:
+            response = jsonify({"message": "desc and deadline are required"})
+            response.status_code = 400
+            return response
 
         new_milestone = Milestones(
             project_id=get_project_id_instructor(),
-            desc=data.get("desc"),
-            deadline=data.get("deadline")
+            desc=desc,
+            deadline=deadline
         )
 
         try:
@@ -734,15 +797,16 @@ class MilestoneResource(Resource):
             db.session.rollback()
             return jsonify({"message": str(e)})
 
-class MilestoneStudentResource(Resource):
 
-    def submission_status(self, m_id, s_id):
-
+def submission_status(m_id, s_id):
         status = MilestonesSub.query.filter_by(s_id=s_id, m_id=m_id).first()
         if status:
             return True
         else:
             return False
+
+
+class MilestoneStudentResource(Resource):
 
     @jwt_required()
     @role_required('student')
@@ -763,7 +827,7 @@ class MilestoneStudentResource(Resource):
                 "m_id": milestone.m_id,
                 "desc": milestone.desc,
                 "deadline": milestone.deadline,
-                "status" : self.submission_status(milestone.m_id, s_id)
+                "status" : submission_status(milestone.m_id, s_id)
             }
             for milestone in milestones
         ]
@@ -781,7 +845,9 @@ class MilestoneUpdateResource(Resource):
    
         milestone = Milestones.query.get(m_id)
         if not milestone:
-            return jsonify({"message": "Milestone not found"})
+            response = jsonify({"message": "Milestone not found"})
+            response.status_code = 400
+            return response
 
         milestone.desc = data.get("desc")
         milestone.deadline = data.get("deadline")
@@ -801,7 +867,9 @@ class MilestoneUpdateResource(Resource):
         """
         milestone = Milestones.query.get(m_id)
         if not milestone:
-            return jsonify({"message": "Milestone not found"})
+            response = jsonify({"message": "Milestone not found"})
+            response.status_code = 400
+            return response
 
         try:
             db.session.delete(milestone)
@@ -817,10 +885,17 @@ class MilestoneSubmissionResource(Resource):
     @role_required('student')
     def post(self, m_id):
 
+        if 'pdfFile' not in request.files:
+            response = jsonify({"message": "No selected file"})
+            response.status_code = 400
+            return response
+
         file = request.files['pdfFile']
 
         if file.filename == '':
-            return jsonify({"message": "No selected file"})
+            response = jsonify({"message": "No selected file"})
+            response.status_code = 400
+            return response
 
         if file and allowed_file_pdf(file.filename):
             try:
@@ -846,7 +921,9 @@ class MilestoneSubmissionResource(Resource):
                 db.session.rollback()
                 return jsonify({"message": str(e)})
         else:
-            return jsonify({"message": "Invalid file type"})
+            response = jsonify({"message": "Invalid file type"})
+            response.status_code = 400
+            return response
 
         
 class DashBoardResource(Resource):
@@ -931,3 +1008,46 @@ class EventStudentResource(Resource):
             for event in events
         ]
         return jsonify(events_list)
+    
+class StudentResourceAll(Resource):
+
+    @jwt_required()
+    @role_required('instructor')
+    def get(self, s_id):
+        student = Students.query.filter_by(s_id=s_id).first()
+
+        if not student:
+            response = jsonify({"message": "Student not found"})
+            response.status_code = 400
+            return response
+        
+        if User.query.filter_by(email=student.email).first():
+            project_id = student.project_id
+            milestones = Milestones.query.filter_by(project_id=project_id).all()
+
+            milestone_status_list = []
+
+            for milestone in milestones:
+                milestone_status_list.append({
+                    "m_id": milestone.m_id,
+                    "desc": milestone.desc,
+                    "deadline": milestone.deadline,
+                    "status": submission_status(milestone.m_id, s_id)
+                })
+             # Get github data for the student's commits
+            commits = db.session.query(githubdata.g_id, githubdata.commit_date, githubdata.message).filter_by(s_id=s_id, project_id=project_id).all()
+            commit_list = [{"g_id": c[0], "commit_date": c[1], "message": c[2]} for c in commits]
+
+            return jsonify({
+                "student": {
+                    "s_id": student.s_id,
+                    "name": student.name,
+                    "email": student.email
+                },
+                "milestone_status_list": milestone_status_list,
+                "commit_list": commit_list
+            })
+        else:
+            response = jsonify({"message": "Student has not made an account"})
+            response.status_code = 400
+            return response
