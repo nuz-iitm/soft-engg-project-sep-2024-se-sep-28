@@ -12,8 +12,8 @@ from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 import csv
 import datetime
-import os
-
+import os 
+import cohere
 
 bcrypt = Bcrypt(app)
 login_manager = flask_login.LoginManager()
@@ -248,7 +248,49 @@ class FaqResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"message": str(e)})
+        
 
+COHERE_API_KEY="iasrqjQUdYmOqJPVGkcebDYPkb8Kv03UhdkcNpEU"
+cohere_client = cohere.Client(COHERE_API_KEY)
+
+class SummaryResource(Resource):
+    @jwt_required()
+    @role_required('instructor')
+    def post(self):
+        data = request.json
+
+        # Extract milestones and commits from the request body
+        milestones = data.get("milestones", [])
+        commits = data.get("commits", [])
+
+        # Prepare input text for summarization
+        input_text = "Milestones:\n"
+        for milestone in milestones:
+            status = "Completed" if milestone["status"] else "Incomplete"
+            input_text += f"- {milestone['desc']} (Deadline: {milestone['deadline']}) - {status}\n"
+
+        input_text += "\nCommit History:\n"
+        for commit in commits:
+            input_text += f"- {commit['commit_date']}: {commit['message']}\n"
+
+        try:
+            # Use Cohere's Summarize API
+            response = cohere_client.summarize(
+                text=input_text,
+                length="medium",  # Options: "short", "medium", "long"
+                format="paragraph",  # Options: "paragraph", "bullets"
+                model="summarize-medium"  # Model to use for summarization
+            )
+
+            if response.summary:
+                return jsonify({"summary": response.summary})
+            else:
+                return jsonify({"summary": "No summary generated. Try again with different data."})
+
+        except Exception as e:
+            return jsonify({"message": f"Error generating summary: {str(e)}"}), 500
+
+    
 # api for updating faq's
 class FaqUpdateResource(Resource):
 

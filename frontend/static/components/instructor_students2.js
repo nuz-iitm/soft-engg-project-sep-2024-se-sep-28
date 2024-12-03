@@ -23,6 +23,21 @@ export default {
             </li>
             </ul>
 
+            <!-- Summary Button -->
+            <button 
+              class="btn btn-primary my-3" 
+              @click="generateSummary"
+              :disabled="!hasCompletedMilestones"
+              style="font-size: 1rem; padding: 0.5rem 1rem;">
+              Generate Summary
+            </button>
+
+            <!-- Display Summary -->
+            <div v-if="summaryText" class="alert alert-success mt-3" style="white-space: pre-line;">
+              <h3>Generated Summary</h3>
+              <p>{{ summaryText }}</p>
+            </div>
+
             <!-- Display Commit List -->
             <h2>Commit History</h2>
             <ul>
@@ -39,8 +54,53 @@ export default {
     return {
       student: null,
       milestoneStatusList: [],
-      commitList: []
+      commitList: [],
+      summaryText: '' // To store the generated summary
     };
+  },
+  computed: {
+    hasCompletedMilestones() {
+      return this.milestoneStatusList.some(milestone => milestone.status === true);
+    }
+  },
+  methods: {
+    generateSummary() {
+      const authToken = localStorage.getItem('auth-token');
+  
+      // Prepare data for the API
+      const milestones = this.milestoneStatusList.map(milestone => ({
+        desc: milestone.desc,
+        deadline: milestone.deadline,
+        status: milestone.status
+      }));
+  
+      const commits = this.commitList.map(commit => ({
+        commit_date: commit.commit_date,
+        message: commit.message
+      }));
+  
+      // Send a POST request to the summary API
+      fetch(`http://127.0.0.1:5000/api/generate_summary`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ milestones, commits })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.summary) {
+            this.summaryText = data.summary;
+          } else {
+            this.summaryText = 'No summary could be generated.';
+          }
+        })
+        .catch(error => {
+          console.error("Error generating summary:", error);
+          this.summaryText = 'An error occurred while generating the summary.';
+        });
+    }
   },
   mounted() {
     const s_id = this.$route.params.s_id;
@@ -60,7 +120,6 @@ export default {
       })
       .catch(error => console.error("Error fetching student:", error));
   },
-
 
   components: {
     side_bar_inst
