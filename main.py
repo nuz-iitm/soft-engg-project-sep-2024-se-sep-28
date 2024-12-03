@@ -53,6 +53,7 @@ def create_app():
             MilestoneStudentResource,
             MilestoneUpdateResource,
             MilestoneSubmissionResource,
+            MilestoneDownloadResource,
             ProjectResource,
             DashBoardResource,
             SummaryResource,
@@ -86,6 +87,7 @@ def create_app():
         api.add_resource(MilestoneStudentResource, '/api/milestone_student') #get
         api.add_resource(MilestoneUpdateResource, '/api/milestone/<int:m_id>') # put delete
         api.add_resource(MilestoneSubmissionResource, '/api/milestone_sub/<int:m_id>') # post
+        api.add_resource(MilestoneDownloadResource, '/api/milestone_down/<int:m_id>/<int:s_id>')
         api.add_resource(SummaryResource,'/api/generate_summary')
         # project statement endpoint
         api.add_resource(ProjectResource, '/api/project_statement') # get put

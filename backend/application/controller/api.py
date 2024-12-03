@@ -2,7 +2,7 @@ from flask_restful import Resource, reqparse
 from ..data.database import db
 from ..data.models import User, RolesUsers, Faq, Instructors, Students, Projects, Queries, Milestones, githubdata, MilestonesSub, Events
 from ..security import user_datastore
-from flask import current_app as app, jsonify, request
+from flask import current_app as app, jsonify, request, send_from_directory
 from flask_bcrypt import Bcrypt
 import flask_login
 from functools import wraps
@@ -288,7 +288,7 @@ class SummaryResource(Resource):
                 return jsonify({"summary": "No summary generated. Try again with different data."})
 
         except Exception as e:
-            return jsonify({"message": f"Error generating summary: {str(e)}"}), 500
+            return jsonify({"message": f"Error generating summary: {str(e)}"})
 
     
 # api for updating faq's
@@ -932,6 +932,21 @@ class MilestoneUpdateResource(Resource):
             db.session.rollback()
             return jsonify({"message": str(e)})
 
+# Setting up folder to get submission file from
+basedir = os.path.abspath(os.path.dirname(__file__))
+size = len(basedir)
+uploads_dir = basedir[:size-22]+'uploads/'
+UPLOAD_FOLDER = uploads_dir
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+class MilestoneDownloadResource(Resource):
+    @jwt_required()
+    @role_required('instructor')
+    def get(self, m_id, s_id):
+        milestone = MilestonesSub.query.filter_by(s_id=s_id, m_id=m_id).first()
+        filename = milestone.submission
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 class MilestoneSubmissionResource(Resource):
 
     @jwt_required()
@@ -958,16 +973,14 @@ class MilestoneSubmissionResource(Resource):
                 f_n, f_ex = os.path.splitext(filename)
                 filename = sub_date+"_"+f_n+f_ex
                 filename = filename.replace(" ", "_").replace(":", "-") # replaced spaces with "_"
-                basedir = os.path.abspath(os.path.dirname(__file__))
-                size = len(basedir)
-                uploads_dir = basedir[:size-22]+'uploads/'
-                print(uploads_dir)
-                file.save(os.path.join(uploads_dir, filename))
-                url = uploads_dir+filename
-                print(url)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 project_id = get_project_id_student()
                 s_id = get_s_id()
-                milestone_sub = MilestonesSub(m_id=m_id, s_id=s_id, project_id=project_id,sub_date=sub_date, submission=url)
+                milestone_sub = MilestonesSub(m_id=m_id, 
+                                              s_id=s_id, 
+                                              project_id=project_id,
+                                              sub_date=sub_date, 
+                                              submission=filename)
                 db.session.add(milestone_sub)
                 db.session.commit()
                 return jsonify({"message": "Submission successful"})
@@ -1082,11 +1095,20 @@ class StudentResourceAll(Resource):
             milestone_status_list = []
 
             for milestone in milestones:
+                sub_status = submission_status(milestone.m_id, s_id)
+                submission_url = None
+
+                if sub_status==True:
+                    submission = MilestonesSub.query.filter_by(s_id=s_id, m_id=milestone.m_id).first()
+                    print(sub_status)
+                    submission_url = submission.submission
+                
                 milestone_status_list.append({
                     "m_id": milestone.m_id,
                     "desc": milestone.desc,
                     "deadline": milestone.deadline,
-                    "status": submission_status(milestone.m_id, s_id)
+                    "status": sub_status,
+                    "submission_url": submission_url 
                 })
              # Get github data for the student's commits
             commits = db.session.query(githubdata.g_id, githubdata.commit_date, githubdata.message).filter_by(s_id=s_id, project_id=project_id).all()
