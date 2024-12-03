@@ -1214,5 +1214,6 @@ class TestStudentResourceAll:
         assert response.status_code == 400, f"Expected 400, got {response.status_code}"
         assert response.json["message"] == "Student has not made an account", f"Unexpected message: {response.json.get('message')}"
 
+
 if __name__ == '__main__':
     pytest.main(['test.py'])

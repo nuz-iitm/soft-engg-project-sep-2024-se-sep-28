@@ -842,10 +842,21 @@ class MilestoneResource(Resource):
 
 def submission_status(m_id, s_id):
         status = MilestonesSub.query.filter_by(s_id=s_id, m_id=m_id).first()
-        if status:
+
+        milestone = Milestones.query.get(m_id) # fetch milestone with m_id
+
+        if not status and milestone:
+            current_date = datetime.datetime.now().date()
+            deadline_date_str = milestone.deadline
+            deadline_date = datetime.datetime.strptime(deadline_date_str, "%Y-%m-%d").date()
+
+            if current_date > deadline_date:  # If deadline has passed
+                return False
+            else:
+                return ""
+        
+        elif status:
             return True
-        else:
-            return False
 
 
 class MilestoneStudentResource(Resource):
@@ -946,6 +957,7 @@ class MilestoneSubmissionResource(Resource):
                 sub_date = y.strftime("%c") # submission date
                 f_n, f_ex = os.path.splitext(filename)
                 filename = sub_date+"_"+f_n+f_ex
+                filename = filename.replace(" ", "_").replace(":", "-") # replaced spaces with "_"
                 basedir = os.path.abspath(os.path.dirname(__file__))
                 size = len(basedir)
                 uploads_dir = basedir[:size-22]+'uploads/'
