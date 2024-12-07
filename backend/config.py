@@ -22,4 +22,4 @@ class DevelopmentConfig(Config):
     JWT_SECRET_KEY = 'jwt_secret_key'
     MAX_CONTENT_LENGTH = 5 * 1024 *1024  #  5 mb limit
     ALLOWED_EXTENSIONS = {'csv', 'pdf'}
-    UPLOAD_FOLDER = os.path.join(basedir, "/uploads")
+    UPLOAD_FOLDER = os.path.join(basedir, "uploads")

@@ -18,9 +18,16 @@ export default {
             <!-- Display Milestone Status List -->
             <h2>Milestone Status</h2>
             <ul>
-            <li v-for="milestone in milestoneStatusList" :key="milestone.m_id">
-                {{ milestone.desc }} - Deadline: {{ milestone.deadline }} - Completed: {{ milestone.status }}
-            </li>
+              <li v-for="milestone in milestoneStatusList" :key="milestone.m_id">
+                  {{ milestone.desc }} - Deadline: {{ milestone.deadline }} - Completion Status: {{ milestone.status }}
+                  <a 
+                      v-if="milestone.submission_url"
+                      @click.prevent='get_file(milestone.m_id, student.s_id, milestone.submission_url)'
+                      class="btn btn-secondary ml-2"
+                  >
+                      Download PDF
+                  </a>
+              </li>
             </ul>
 
             <!-- Summary Button -->
@@ -41,9 +48,9 @@ export default {
             <!-- Display Commit List -->
             <h2>Commit History</h2>
             <ul>
-            <li v-for="commit in commitList" :key="commit.g_id">
-                {{ commit.commit_date }} - Message: {{ commit.message }}
-            </li>
+              <li v-for="commit in commitList" :key="commit.g_id">
+                  {{ commit.commit_date }} - Message: {{ commit.message }}
+              </li>
             </ul>
         </div>
         </div>
@@ -64,6 +71,49 @@ export default {
     }
   },
   methods: {
+    get_file(m_id, s_id, submission_url) {
+        // Retrieve the JWT token from local storage
+        const authToken = localStorage.getItem('auth-token');
+      
+        // Set the URL of the file to download
+        const url = `http://127.0.0.1:5000/api/milestone_down/${m_id}/${s_id}`;
+      
+        // Configure the fetch request with headers and credentials
+        fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`, // Add the JWT token to the Authorization header
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Create a URL for the blob
+          const url = window.URL.createObjectURL(blob);
+      
+          // Create a hidden anchor element
+          const link = document.createElement('a');
+          link.style.display = 'none';
+          link.href = url;
+          link.download = `${submission_url}.pdf`; // Set the filename for the downloaded file
+      
+          // Append the anchor to the body and trigger the download
+          document.body.appendChild(link);
+          link.click();
+      
+          // Clean up
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(link);
+        })
+        .catch(error => {
+          console.error("Error downloading PDF:", error);
+        });
+    },
     generateSummary() {
       const authToken = localStorage.getItem('auth-token');
   
